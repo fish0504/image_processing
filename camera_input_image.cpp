@@ -182,18 +182,19 @@ int main(int argc, char* argv[])
         if (cameraContextValue == 0)
             {
                 //cameraImage1=openCvImage;
-                imshow("camera1", openCvImage);
-                cv::waitKey(0);
+                cv::imshow("camera1", openCvImage);
+                
                 //imwrite("right_img.png", openCvImage);
             }
             else if (cameraContextValue == 1)
             {
                // cameraImage2=openCvImage;
-                imshow("camera2", openCvImage);
-                cv::waitKey(0);
+                cv::imshow("camera2", openCvImage);
+                //cv::waitKey(1);
                 //imwrite("right_img.png", openCvImage);
 
             }
+            cv::waitKey(1);
             if(i%500==0){
                 clock_t end = clock();
                 const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
