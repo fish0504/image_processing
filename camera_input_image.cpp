@@ -22,6 +22,7 @@
 #include <opencv2/opencv.hpp>
 #include<thread>
 #include<mutex>
+#include<time.h>
 //#include "defs.h"
 #ifdef PYLON_WIN_BUILD
 #    include <pylon/PylonGUI.h>
@@ -47,54 +48,36 @@ static const uint32_t c_countOfImagesToGrab = 5000;
 // The bandwidth used by a FireWire camera device can be limited by adjusting the packet size.
 static const size_t c_maxCamerasToUse = 2;
 std::mutex mtx;
-
+cv::Mat cameraImage1;
+cv::Mat cameraImage2;
 void Display()
 {
 
-        CImageFormatConverter formatConverter;//me
-        formatConverter.OutputPixelFormat = PixelType_BGR8packed;//me
-        CPylonImage pylonImage;//me
+    cv::namedWindow("left camera");//CV_WINDOW_NORMAL); 
+    cv::namedWindow("right camera");//,CV_WINDOW_NORMAL); 
 
     // Create an OpenCV image
-    cv::Mat openCvImage;//me
+    //cv::Mat openCvImage;//me
     cv::Mat frame[c_maxCamerasToUse];
     int cnt=0;
     printf("display_start!\n");
     //while(cnt<1e5)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
-    while(cnt<1000)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
+    while(cnt<100000)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
     {
-            
-        //     formatConverter.Convert(pylonImage, ptrGrabResult);//me
-        //     // Create an OpenCV image out of pylon image
-        //     //openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t *)pylonImage.GetBuffer());//me
-        //     //mtx.unlock();
-        // if(openCvImage.empty()){
-        //     printf("getMat failed!\n");
-        //     continue;
-        // }
+        //mtx.lock();
+        cv::imshow("right camera",cameraImage1);
+        cv::imshow("left camera",cameraImage2);
+        //if(!cameraImage1.empty() && cnt%2==0)cv::imshow("right camera",cameraImage1);
         // else{
-        //     printf("getMat successed!\n");
-        //     //cv::imshow("camera",frame[0]);
-        //     //cv::waitKey(1);
+        //     printf("not_exist!\n");
         // }
-        // // mtx.lock();
-        // // intptr_t cameraContextValue = ptrGrabResult->GetCameraContext();
-        // // mtx.unlock();
-        // // if (cameraContextValue == 0)
-        // //     {
-        // //         cv::imshow("left camera", openCvImage);
-        // //         //cv::imwrite("left_img.png", openCvImage);
-        // //     }
-        // //     else if (cameraContextValue == 1)
-        // //     {
-        // //         cv::imshow("right camera", openCvImage);
-        // //         //cv::imwrite("right_img.png", openCvImage);
-        // //     }
-        //     cv::imshow("left camera", openCvImage);
-        //     cv::waitKey(1);
-        // //cv::imshow("camera",frame[0]);
-        // cnt++;
-
+        //if(!cameraImage2.empty()&& cnt%2==1)cv::imshow("left camera",cameraImage2);
+        // else{
+        //     printf("not_exist!\n");
+        // }
+        //mtx.unlock();
+         cv::waitKey(1);
+        cnt++;
     }
     printf("display end!\n");
     return ;
@@ -144,14 +127,18 @@ int main(int argc, char* argv[])
 
         // This smart pointer will receive the grab result data.
         
-        cv::namedWindow("left camera");//CV_WINDOW_NORMAL); 
-        cv::namedWindow("right camera");//,CV_WINDOW_NORMAL); 
+        
 
         // Grab c_countOfImagesToGrab from the cameras.
         //cameras.RetrieveResult( 5000, ptrGrabResult, TimeoutHandling_ThrowException);
         bool display_started=false;
+        clock_t start = clock();
+        //cv::namedWindow("left camera SLOW");//CV_WINDOW_NORMAL); 
+        //cv::namedWindow("right camera SLOW");//,CV_WINDOW_NORMAL); 
+        
         for( uint32_t i = 0; i < c_countOfImagesToGrab && cameras.IsGrabbing(); ++i)
         {
+            
             //mtx.lock();
             CGrabResultPtr ptrGrabResult;
             cameras.RetrieveResult( 5000, ptrGrabResult, TimeoutHandling_ThrowException);
@@ -162,7 +149,7 @@ int main(int argc, char* argv[])
             // This value is attached to each grab result and can be used
             // to determine the camera that produced the grab result.
             intptr_t cameraContextValue = ptrGrabResult->GetCameraContext();
-             CImageFormatConverter formatConverter;//me
+            CImageFormatConverter formatConverter;//me
             formatConverter.OutputPixelFormat = PixelType_BGR8packed;//me
             CPylonImage pylonImage;//me
             formatConverter.Convert(pylonImage, ptrGrabResult);//me
@@ -172,19 +159,28 @@ int main(int argc, char* argv[])
             // Create an OpenCV image
             cv::Mat openCvImage;//me
             // Create an OpenCV image out of pylon image
+            printf("cameraContextValue : %ld\n",cameraContextValue);
             openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t *)pylonImage.GetBuffer());//me
+            //auto end=std::chrono::system_clock::now();
+            
 
-        if (cameraContextValue == 0)
-            {
-                cv::imshow("left camera", openCvImage);
-                //cv::imwrite("left_img.png", openCvImage);
+            
+            if(i%500==0){
+                clock_t end = clock();
+                const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
+                printf("time %lf[ms]\n",time/500);
+                printf("fps %lf[fps]\n",((1000.0)/ time)*500);
+                start = clock();
             }
-            else if (cameraContextValue == 1)
-            {
-                cv::imshow("right camera", openCvImage);
-                //cv::imwrite("right_img.png", openCvImage);
-            }
-            cv::waitKey(1);
+#if 1   
+        //mtx.lock();
+        for(int p=0;p<2;p++){
+            
+        }
+        //cv::waitKey(1);
+        //mtx.unlock();
+#endif      
+           
         // Create an OpenCV image
        
       
@@ -195,17 +191,19 @@ int main(int argc, char* argv[])
 #endif
 
             // Print the index and the model name of the camera.
+            
+#if 0
             cout << "Camera " <<  cameraContextValue << ": " << cameras[ cameraContextValue ].GetDeviceInfo().GetModelName() << endl;
-
             // Now, the image data can be processed.
             cout << "GrabSucceeded: " << ptrGrabResult->GrabSucceeded() << endl;
             cout << "SizeX: " << ptrGrabResult->GetWidth() << endl;
             cout << "SizeY: " << ptrGrabResult->GetHeight() << endl;
             const uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
             cout << "Gray value of first pixel: " << (uint32_t) pImageBuffer[0] << endl << endl;
+#endif
             if(!display_started && i>=500){
-            //std::thread display(Display);
-            //display.join();
+            std::thread display(Display);
+            display.detach();
             display_started=true;
             }
             
