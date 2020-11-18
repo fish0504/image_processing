@@ -50,12 +50,14 @@ static const size_t c_maxCamerasToUse = 2;
 std::mutex mtx;
 cv::Mat cameraImage1;
 cv::Mat cameraImage2;
+cv::Mat cameraImages[2];
+string window[2]={"right camera","left camera"};
 void Display()
 {
 
-    cv::namedWindow("left camera");//CV_WINDOW_NORMAL); 
-    cv::namedWindow("right camera");//,CV_WINDOW_NORMAL); 
-
+    
+    cv::namedWindow(window[0]);//CV_WINDOW_NORMAL); 
+    cv::namedWindow(window[1]);//,CV_WINDOW_NORMAL); 
     // Create an OpenCV image
     //cv::Mat openCvImage;//me
     cv::Mat frame[c_maxCamerasToUse];
@@ -65,8 +67,14 @@ void Display()
     while(cnt<100000)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
     {
         //mtx.lock();
-        cv::imshow("right camera",cameraImage1);
-        cv::imshow("left camera",cameraImage2);
+        //for(int p=0;p<2;p++){
+            if(cameraImages[0].empty()||cameraImages[1].empty()){
+                printf("no image!\n");
+                continue;
+            }
+        cv::imshow(window[0],cameraImage1);
+        cv::imshow(window[1],cameraImage2);
+        //cv::imshow("left camera",cameraImage2);
         //if(!cameraImage1.empty() && cnt%2==0)cv::imshow("right camera",cameraImage1);
         // else{
         //     printf("not_exist!\n");
@@ -77,6 +85,7 @@ void Display()
         // }
         //mtx.unlock();
          cv::waitKey(1);
+       // }
         cnt++;
     }
     printf("display end!\n");
@@ -126,7 +135,7 @@ int main(int argc, char* argv[])
         cameras.StartGrabbing();
 
         // This smart pointer will receive the grab result data.
-        
+       
         
 
         // Grab c_countOfImagesToGrab from the cameras.
@@ -136,11 +145,16 @@ int main(int argc, char* argv[])
         //cv::namedWindow("left camera SLOW");//CV_WINDOW_NORMAL); 
         //cv::namedWindow("right camera SLOW");//,CV_WINDOW_NORMAL); 
         
+        CGrabResultPtr ptrGrabResult;
+        CImageFormatConverter formatConverter;//me
+        formatConverter.OutputPixelFormat = PixelType_BGR8packed;//me
+        CPylonImage pylonImage;//me
+        
         for( uint32_t i = 0; i < c_countOfImagesToGrab && cameras.IsGrabbing(); ++i)
         {
             
-            //mtx.lock();
-            CGrabResultPtr ptrGrabResult;
+           
+            
             cameras.RetrieveResult( 5000, ptrGrabResult, TimeoutHandling_ThrowException);
             //mtx.unlock();
             // When the cameras in the array are created the camera context value
@@ -149,22 +163,29 @@ int main(int argc, char* argv[])
             // This value is attached to each grab result and can be used
             // to determine the camera that produced the grab result.
             intptr_t cameraContextValue = ptrGrabResult->GetCameraContext();
-            CImageFormatConverter formatConverter;//me
-            formatConverter.OutputPixelFormat = PixelType_BGR8packed;//me
-            CPylonImage pylonImage;//me
+            
             formatConverter.Convert(pylonImage, ptrGrabResult);//me
-             //mtx.lock();
-            //intptr_t cameraContextValue = ptrGrabResult->GetCameraContext();
-            // mtx.unlock();
+            
             // Create an OpenCV image
-            cv::Mat openCvImage;//me
+            
             // Create an OpenCV image out of pylon image
-            printf("cameraContextValue : %ld\n",cameraContextValue);
+            //printf("cameraContextValue : %ld\n",cameraContextValue);
+            cv::Mat openCvImage;//me
             openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t *)pylonImage.GetBuffer());//me
-            //auto end=std::chrono::system_clock::now();
-            
+           
+            //cameraImages[cameraContextValue]=openCvImage;
+        if (cameraContextValue == 0)
+            {
 
-            
+                imshow("left camera", openCvImage);
+                //imwrite("right_img.png", openCvImage);
+            }
+            else if (cameraContextValue == 1)
+            {
+                imshow("right camera", openCvImage);
+                //imwrite("right_img.png", openCvImage);
+
+            }
             if(i%500==0){
                 clock_t end = clock();
                 const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
@@ -172,14 +193,7 @@ int main(int argc, char* argv[])
                 printf("fps %lf[fps]\n",((1000.0)/ time)*500);
                 start = clock();
             }
-#if 1   
-        //mtx.lock();
-        for(int p=0;p<2;p++){
-            
-        }
-        //cv::waitKey(1);
-        //mtx.unlock();
-#endif      
+
            
         // Create an OpenCV image
        
