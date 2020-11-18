@@ -84,7 +84,7 @@ void Display()
         //     printf("not_exist!\n");
         // }
         //mtx.unlock();
-         cv::waitKey(1);
+         cv::waitKey();
        // }
         cnt++;
     }
@@ -99,7 +99,11 @@ int main(int argc, char* argv[])
 
     // Before using any pylon methods, the pylon runtime must be initialized. 
     PylonInitialize();
-
+    //PylonInitialize();
+    //PylonTerminate(); 
+    //return 0;
+    Pylon::PylonAutoInitTerm autoInitTerm;
+    
     try
     {
         // Get the transport layer factory.
@@ -124,7 +128,12 @@ int main(int argc, char* argv[])
             cout << "Using device " << cameras[ i ].GetDeviceInfo().GetModelName() << endl;
         }
         
-       
+       CImageFormatConverter formatConverter;//me
+        formatConverter.OutputPixelFormat = PixelType_BGR8packed;//me
+        CPylonImage pylonImage;//me
+
+        // Create an OpenCV image
+        cv::Mat openCvImage;//me
         
         // Starts grabbing for all cameras starting with index 0. The grabbing
         // is started for one camera after the other. That's why the images of all
@@ -139,16 +148,12 @@ int main(int argc, char* argv[])
         
 
         // Grab c_countOfImagesToGrab from the cameras.
-        //cameras.RetrieveResult( 5000, ptrGrabResult, TimeoutHandling_ThrowException);
+        
         bool display_started=false;
         clock_t start = clock();
-        //cv::namedWindow("left camera SLOW");//CV_WINDOW_NORMAL); 
-        //cv::namedWindow("right camera SLOW");//,CV_WINDOW_NORMAL); 
-        
         CGrabResultPtr ptrGrabResult;
-        CImageFormatConverter formatConverter;//me
-        formatConverter.OutputPixelFormat = PixelType_BGR8packed;//me
-        CPylonImage pylonImage;//me
+        cv::namedWindow("camera1");//CV_WINDOW_NORMAL); 
+        cv::namedWindow("camera2");//,CV_WINDOW_NORMAL); 
         
         for( uint32_t i = 0; i < c_countOfImagesToGrab && cameras.IsGrabbing(); ++i)
         {
@@ -163,26 +168,29 @@ int main(int argc, char* argv[])
             // This value is attached to each grab result and can be used
             // to determine the camera that produced the grab result.
             intptr_t cameraContextValue = ptrGrabResult->GetCameraContext();
-            
+             //const uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
             formatConverter.Convert(pylonImage, ptrGrabResult);//me
             
             // Create an OpenCV image
             
             // Create an OpenCV image out of pylon image
             //printf("cameraContextValue : %ld\n",cameraContextValue);
-            cv::Mat openCvImage;//me
+            //cv::Mat openCvImage;//me
             openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t *)pylonImage.GetBuffer());//me
            
             //cameraImages[cameraContextValue]=openCvImage;
         if (cameraContextValue == 0)
             {
-
-                imshow("left camera", openCvImage);
+                //cameraImage1=openCvImage;
+                imshow("camera1", openCvImage);
+                cv::waitKey(0);
                 //imwrite("right_img.png", openCvImage);
             }
             else if (cameraContextValue == 1)
             {
-                imshow("right camera", openCvImage);
+               // cameraImage2=openCvImage;
+                imshow("camera2", openCvImage);
+                cv::waitKey(0);
                 //imwrite("right_img.png", openCvImage);
 
             }
@@ -212,10 +220,10 @@ int main(int argc, char* argv[])
             cout << "GrabSucceeded: " << ptrGrabResult->GrabSucceeded() << endl;
             cout << "SizeX: " << ptrGrabResult->GetWidth() << endl;
             cout << "SizeY: " << ptrGrabResult->GetHeight() << endl;
-            const uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
+            
             cout << "Gray value of first pixel: " << (uint32_t) pImageBuffer[0] << endl << endl;
 #endif
-            if(!display_started && i>=500){
+            if(!display_started && i>=500&&0){
             std::thread display(Display);
             display.detach();
             display_started=true;
