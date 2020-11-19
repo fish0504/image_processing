@@ -28,18 +28,55 @@ using namespace std;
 #define PAT_SIZE   (PAT_ROW*PAT_COL)
 #define ALL_POINTS (IMAGE_NUM*PAT_SIZE)
 #define CHESS_SIZE (20.0)       /* パターン1マスの1辺サイズ[mm] */
-bool calibration(string filename,string filepath);
+bool calibration(string filename,string filepath,bool left);
+void stereoCalib();
+
+vector<cv::Point2f> l_corners;
+vector<cv::Point2f> r_corners;
+vector<cv::Point3f> object;
+cv::Mat kl,kr,dl,dr;
+cv::Size img_size;
+ vector<vector<cv::Point3f>> obj_points;
+ vector<vector<cv::Point2f>> img_points_l;
+ vector<vector<cv::Point2f>> img_points_r;
 int main(){
-    bool success_right=calibration("camera_right.xml","./calib_img/right");
-    bool success_left=calibration("camera_left.xml","./calib_img/left");
+   
+    
+    // (2)3次元空間座標の設定
+
+    
+    for (int j = 0; j < PAT_ROW; j++)
+    {
+        for (int k = 0; k < PAT_COL; k++)
+        {
+            cv::Point3f p(
+                j * CHESS_SIZE,
+                k * CHESS_SIZE,
+                0.0);
+            
+            object.push_back(p);
+        }
+    }
+    for (int i = 0; i < IMAGE_NUM; i++)
+    {
+        obj_points.push_back(object);
+    }
+    bool success_right=calibration("camera_right.xml","./calib_img/right",0);
+    bool success_left=calibration("camera_left.xml","./calib_img/left",1);
 
     if(success_left&&success_right){
         printf("calibration completed!\n");
+        stereoCalib();
         return 0;
     }
+    else{
+        printf("calibration falied!\n");
+        return 0;
+    }
+    
 }
 
-bool calibration(string filename,string filepath)
+bool calibration(string filename,string filepath,bool left)
 {
     int i, j, k;
     int corner_count, found;
@@ -47,9 +84,9 @@ bool calibration(string filename,string filepath)
     // cv::Mat src_img[IMAGE_NUM];
     vector<cv::Mat> srcImages;
     cv::Size pattern_size = cv::Size2i(PAT_COL, PAT_ROW);
-    vector<cv::Point2f> corners;
+    
     vector<vector<cv::Point2f>> img_points;
-
+    vector<cv::Point2f> corners;
     // (1)キャリブレーション画像の読み込み
     for (i = 0; i < IMAGE_NUM; i++)
     {
@@ -64,28 +101,13 @@ bool calibration(string filename,string filepath)
         {
             srcImages.push_back(src);
         }
+        img_size=src.size();
     }
 
-    // (2)3次元空間座標の設定
+    
 
-    vector<cv::Point3f> object;
-    for (j = 0; j < PAT_ROW; j++)
-    {
-        for (k = 0; k < PAT_COL; k++)
-        {
-            cv::Point3f p(
-                j * CHESS_SIZE,
-                k * CHESS_SIZE,
-                0.0);
-            object.push_back(p);
-        }
-    }
-
-    vector<vector<cv::Point3f>> obj_points;
-    for (i = 0; i < IMAGE_NUM; i++)
-    {
-        obj_points.push_back(object);
-    }
+    
+    
 
     // ３次元の点を ALL_POINTS * 3 の行列(32Bit浮動小数点数:１チャンネル)に変換する 
 
@@ -137,7 +159,20 @@ bool calibration(string filename,string filepath)
         rvecs,
         tvecs
     );
-
+    if(left){
+        img_points_l=img_points;
+        //l_corners=corners;
+        kl=cam_mat;
+        dl=dist_coefs;
+    }
+    else{
+        img_points_r=img_points;
+        //r_corners.resize(corners.size());
+        //std::copy(corners.begin(), corners.end(), r_corners.begin());
+        //r_corners=corners;
+        kr=cam_mat;
+        dr=dist_coefs;
+    }
     // (6)XMLファイルへの書き出し
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
     if(!fs.isOpened())
@@ -151,4 +186,25 @@ bool calibration(string filename,string filepath)
     fs.release();
 
     return true;
+}
+
+void stereoCalib(){
+
+std::cout << "Read intrinsics" << std::endl;
+cv::Mat r,t,e,f;
+stereoCalibrate(
+    obj_points,
+    img_points_l,img_points_r,
+    kl,dl,kr,dr,
+    img_size,r,t,e,f
+);
+printf("Done Calibration\n");
+
+
+printf("Starting Rectification\n");
+cv::Mat R1, R2, P1, P2, Q;
+cv::stereoRectify(kl, dl,kr, dr, img_size, r, t, R1, R2, P1, P2, Q);
+printf("Done Rectification\n");
+
+
 }
