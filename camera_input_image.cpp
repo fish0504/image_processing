@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
         }
 
         
-       CImageFormatConverter formatConverter;//me
+        CImageFormatConverter formatConverter;//me
         formatConverter.OutputPixelFormat = PixelType_BGR8packed;//me
         CPylonImage pylonImage;//me
 
@@ -219,15 +219,15 @@ int main(int argc, char* argv[])
             // Create an OpenCV image out of pylon image
             //printf("cameraContextValue : %ld\n",cameraContextValue);
             //cv::Mat openCvImage;//me
-            openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t *)pylonImage.GetBuffer());//me
-            if (cameraContextValue == 0)
-            {
-                cameraImages[0]=openCvImage;
-            }
-            else if (cameraContextValue == 1)
-            {
-                cameraImages[1]=openCvImage;
-            }
+            // openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t *)pylonImage.GetBuffer());//me
+            // if (cameraContextValue == 0)
+            // {
+            //     cameraImages[0]=openCvImage;
+            // }
+            // else if (cameraContextValue == 1)
+            // {
+            //     cameraImages[1]=openCvImage;
+            // }
             //cameraImages[cameraContextValue]=openCvImage;
             #if NOT_REALTIME
             if (cameraContextValue == 0)
