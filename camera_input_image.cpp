@@ -23,15 +23,19 @@
 #include<thread>
 #include<mutex>
 #include<time.h>
-//#include "defs.h"
-
+#include "defs.h"
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
+#include <signal.h>
+#include <sstream>
 #ifdef PYLON_WIN_BUILD
 #    include <pylon/PylonGUI.h>
 #endif
-
+static CameraDevices camerasDevices;
 // Namespace for using pylon objects.
 using namespace Pylon;
-
+float exposure_time = 2000.0; //microsecond
 // Namespace for using cout.
 using namespace std;
 #define NOT_REALTIME 0
@@ -48,7 +52,7 @@ static const uint32_t c_countOfImagesToGrab = 10000;
 // Application Notes (AW000649xx000)
 // provide more information about this topic.
 // The bandwidth used by a FireWire camera device can be limited by adjusting the packet size.
-static const size_t c_maxCamerasToUse = 2;
+
 std::mutex mtx;
 cv::Mat cameraImage1;
 cv::Mat cameraImage2;
@@ -69,22 +73,33 @@ void Display()
     while(cnt<1000000)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
     {
         cnt++;
+         for (size_t i = 0; i<camerasDevices.numberOfCameras; i++){
+            camerasDevices.cameraParams[i].imageBuffer.GetMat(frame[i], camerasDevices.cameraParams[i].width,
+                                                              camerasDevices.cameraParams[i].height, camerasDevices.cameraParams[i].pixelormat);
+
+            if (frame[i].cols > 0 && frame[i].rows > 0){
+                //if(yoloDnn)
+                    //yolo objects overlayed on the captured image
+                    //yoloDnn->OverlayObjects(frame[i], i);
+
+                //show the image
+                cv::imshow(window[i], frame[i]);
+            }
             // if(cameraImages[0].empty()||cameraImages[1].empty()){
             //     printf("no image!\n");
             //     continue;
             // }
             //mtx.lock();
-            if(!cameraImages[0].empty())cv::imshow(window[0],cameraImages[0]);
+            //if(!cameraImages[0].empty())cv::imshow(window[0],cameraImages[0]);
 
-            if(!cameraImages[1].empty())cv::imshow(window[1],cameraImages[1]);
+            //if(!cameraImages[1].empty())cv::imshow(window[1],cameraImages[1]);
             //mtx.unlock();
          cv::waitKey(1);
-       // }
+        }
      
     }
     printf("display end!\n");
     return ;
-
 }
 int main(int argc, char* argv[])
 {
@@ -106,19 +121,50 @@ int main(int argc, char* argv[])
         if ( tlFactory.EnumerateDevices(devices) == 0 )
         {
             throw RUNTIME_EXCEPTION( "No camera present.");
+            // Releases all pylon resources.
+            PylonTerminate();
         }
 
         // Create an array of instant cameras for the found devices and avoid exceeding a maximum number of devices.
-        CInstantCameraArray cameras( min( devices.size(), c_maxCamerasToUse));
+       camerasDevices.numberOfCameras= std::min( devices.size(), c_maxCamerasToUse);
+        camerasDevices.cameras.Initialize(camerasDevices.numberOfCameras);
 
         // Create and attach all Pylon Devices.
-        for ( size_t i = 0; i < cameras.GetSize(); ++i)
-        {
-            cameras[ i ].Attach( tlFactory.CreateDevice( devices[ i ]));
+        // for ( size_t i = 0; i < cameras.GetSize(); ++i)
+        // {
+        //     cameras[ i ].Attach( tlFactory.CreateDevice( devices[ i ]));
 
+        //     // Print the model name of the camera.
+        //     cout << "Using device " << cameras[ i ].GetDeviceInfo().GetModelName() << endl;
+        // }
+                // Create and attach all Pylon Devices.
+        for (size_t i=0; i<camerasDevices.cameras.GetSize(); ++i)
+        {
+            // attach the camera to camera array
+            camerasDevices.cameras[i].Attach(tlFactory.CreateDevice(devices[i]));
+
+            // Open the camera.
+            camerasDevices.cameras[i].Open();
+
+            //get the set image width and height
+            camerasDevices.cameraParams[i].width = 800;//width.GetValue();
+            camerasDevices.cameraParams[i].height = 600;//height.GetValue();
+
+            //initialize frame count
+            camerasDevices.frameCount[i] = 0;
+
+            std::stringstream winName;
+            winName << "Camera " << i + 1;
+            camerasDevices.cameraParams[i].windowName = winName.str();
+
+            
             // Print the model name of the camera.
-            cout << "Using device " << cameras[ i ].GetDeviceInfo().GetModelName() << endl;
+            if (camerasDevices.cameras[i].GetDeviceInfo().IsSerialNumberAvailable())
+                std::cout << "Using device " << camerasDevices.cameras[i].GetDeviceInfo().GetModelName() << "; Serial# " << camerasDevices.cameras[i].GetDeviceInfo().GetSerialNumber() << std::endl;
+            else
+                std::cout << "Using device " << camerasDevices.cameras[i].GetDeviceInfo().GetModelName() << std::endl;
         }
+
         
        CImageFormatConverter formatConverter;//me
         formatConverter.OutputPixelFormat = PixelType_BGR8packed;//me
@@ -133,7 +179,7 @@ int main(int argc, char* argv[])
         // However, a hardware trigger setup can be used to cause all cameras to grab images synchronously.
         // According to their default configuration, the cameras are
         // set up for free-running continuous acquisition.
-        cameras.StartGrabbing();
+        camerasDevices.cameras.StartGrabbing(GrabStrategy_LatestImages);
 
         // This smart pointer will receive the grab result data.
        
@@ -149,18 +195,24 @@ int main(int argc, char* argv[])
         cv::namedWindow("camera2");//,CV_WINDOW_NORMAL); 
         #endif
         printf("started!\n");
-        for( uint32_t i = 0; i < c_countOfImagesToGrab && cameras.IsGrabbing(); ++i)
+        for( uint32_t i = 0; i < c_countOfImagesToGrab && camerasDevices.cameras.IsGrabbing(); ++i)
         { 
-            cameras.RetrieveResult( 5000, ptrGrabResult, TimeoutHandling_ThrowException);
+            camerasDevices.cameras.RetrieveResult( 5000, ptrGrabResult, TimeoutHandling_ThrowException);
+            intptr_t cameraContextValue = ptrGrabResult->GetCameraContext();
+            const uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
+
+            //set the image buffer for later use
+            camerasDevices.cameraParams[cameraContextValue].imageBuffer.SetBuffer(pImageBuffer, ptrGrabResult->GetBufferSize());
+            camerasDevices.frameCount[cameraContextValue]++;
             //mtx.unlock();
             // When the cameras in the array are created the camera context value
             // is set to the index of the camera in the array.
             // The camera context is a user settable value.
             // This value is attached to each grab result and can be used
             // to determine the camera that produced the grab result.
-            intptr_t cameraContextValue = ptrGrabResult->GetCameraContext();
+            
              //const uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
-            formatConverter.Convert(pylonImage, ptrGrabResult);//me
+            //formatConverter.Convert(pylonImage, ptrGrabResult);//me
             
             // Create an OpenCV image
             
