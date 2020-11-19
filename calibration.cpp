@@ -28,8 +28,18 @@ using namespace std;
 #define PAT_SIZE   (PAT_ROW*PAT_COL)
 #define ALL_POINTS (IMAGE_NUM*PAT_SIZE)
 #define CHESS_SIZE (20.0)       /* パターン1マスの1辺サイズ[mm] */
+bool calibration(string filename,string filepath);
+int main(){
+    bool success_right=calibration("camera_right.xml","./calib_img/right");
+    bool success_left=calibration("camera_left.xml","./calib_img/left");
 
-int main(int argc, char *argv[])
+    if(success_left&&success_right){
+        printf("calibration completed!\n");
+        return 0;
+    }
+}
+
+bool calibration(string filename,string filepath)
 {
     int i, j, k;
     int corner_count, found;
@@ -44,7 +54,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < IMAGE_NUM; i++)
     {
         ostringstream ostr;
-        ostr << "./calib_img/left" << i << ".png";
+        ostr << filepath << i << ".png";
         cv::Mat src = cv::imread(ostr.str());
         if (src.empty())
         {
@@ -129,7 +139,7 @@ int main(int argc, char *argv[])
     );
 
     // (6)XMLファイルへの書き出し
-    cv::FileStorage fs("camera.xml", cv::FileStorage::WRITE);
+    cv::FileStorage fs(filename, cv::FileStorage::WRITE);
     if(!fs.isOpened())
     {
         cerr << "File can not be opened." << endl;
@@ -140,5 +150,5 @@ int main(int argc, char *argv[])
     fs << "distortion" << dist_coefs;
     fs.release();
 
-    return 0;
+    return true;
 }
