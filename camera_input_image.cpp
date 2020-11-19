@@ -24,6 +24,7 @@
 #include<mutex>
 #include<time.h>
 //#include "defs.h"
+
 #ifdef PYLON_WIN_BUILD
 #    include <pylon/PylonGUI.h>
 #endif
@@ -33,9 +34,10 @@ using namespace Pylon;
 
 // Namespace for using cout.
 using namespace std;
-
+#define NOT_REALTIME 0
+#define realtime 1
 // Number of images to be grabbed.
-static const uint32_t c_countOfImagesToGrab = 1000;
+static const uint32_t c_countOfImagesToGrab = 10000;
 
 // Limits the amount of cameras used for grabbing.
 // It is important to manage the available bandwidth when grabbing with multiple cameras.
@@ -64,17 +66,18 @@ void Display()
     int cnt=0;
     printf("display_start!\n");
     //while(cnt<1e5)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
-    while(cnt<100000)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
+    while(cnt<1000000)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
     {
         cnt++;
-            if(cameraImages[0].empty()||cameraImages[1].empty()){
-                printf("no image!\n");
-                continue;
-            }
-            mtx.lock();
-        cv::imshow(window[0],cameraImages[0]);
-        cv::imshow(window[1],cameraImages[1]);
-            mtx.unlock();
+            // if(cameraImages[0].empty()||cameraImages[1].empty()){
+            //     printf("no image!\n");
+            //     continue;
+            // }
+            //mtx.lock();
+            if(!cameraImages[0].empty())cv::imshow(window[0],cameraImages[0]);
+
+            if(!cameraImages[1].empty())cv::imshow(window[1],cameraImages[1]);
+            //mtx.unlock();
          cv::waitKey(1);
        // }
      
@@ -141,14 +144,13 @@ int main(int argc, char* argv[])
         bool display_started=false;
         clock_t start = clock();
         CGrabResultPtr ptrGrabResult;
-        //cv::namedWindow("camera1");//CV_WINDOW_NORMAL); 
-        //cv::namedWindow("camera2");//,CV_WINDOW_NORMAL); 
+        #if NOT_REALTIME
+        cv::namedWindow("camera1");//CV_WINDOW_NORMAL); 
+        cv::namedWindow("camera2");//,CV_WINDOW_NORMAL); 
+        #endif
         printf("started!\n");
         for( uint32_t i = 0; i < c_countOfImagesToGrab && cameras.IsGrabbing(); ++i)
-        {
-            
-           
-            
+        { 
             cameras.RetrieveResult( 5000, ptrGrabResult, TimeoutHandling_ThrowException);
             //mtx.unlock();
             // When the cameras in the array are created the camera context value
@@ -166,14 +168,39 @@ int main(int argc, char* argv[])
             //printf("cameraContextValue : %ld\n",cameraContextValue);
             //cv::Mat openCvImage;//me
             openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t *)pylonImage.GetBuffer());//me
-           
+            if (cameraContextValue == 0)
+            {
+                cameraImages[0]=openCvImage;
+            }
+            else if (cameraContextValue == 1)
+            {
+                cameraImages[1]=openCvImage;
+            }
             //cameraImages[cameraContextValue]=openCvImage;
-            cameraImages[cameraContextValue]=openCvImage;
+            #if NOT_REALTIME
+            if (cameraContextValue == 0)
+            {
+                //cameraImages[0]=openCvImage;
+                cv::imshow("camera1", openCvImage);
+                //cv::imwrite("right_img.png", openCvImage);
+            }
+            else if (cameraContextValue == 1)
+            {
+                cameraImages[1]=openCvImage;
+                cv::imshow("camera2", openCvImage);
+                //cv::imwrite("right_img.png", openCvImage);
+
+            }
+            cv::waitKey(1);
+            #endif
+            //cameraImages[cameraContextValue]=openCvImage;
+            #if realtime
             if(!display_started && i>=500){
             std::thread display(Display);
             display.detach();
             display_started=true;
             }
+            #endif
             //cv::waitKey(1);
             if(i%500==0){
                 clock_t end = clock();
