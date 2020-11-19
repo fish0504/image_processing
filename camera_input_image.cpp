@@ -35,7 +35,7 @@ using namespace Pylon;
 using namespace std;
 
 // Number of images to be grabbed.
-static const uint32_t c_countOfImagesToGrab = 5000;
+static const uint32_t c_countOfImagesToGrab = 1000;
 
 // Limits the amount of cameras used for grabbing.
 // It is important to manage the available bandwidth when grabbing with multiple cameras.
@@ -66,27 +66,18 @@ void Display()
     //while(cnt<1e5)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
     while(cnt<100000)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
     {
-        //mtx.lock();
-        //for(int p=0;p<2;p++){
+        cnt++;
             if(cameraImages[0].empty()||cameraImages[1].empty()){
                 printf("no image!\n");
                 continue;
             }
-        cv::imshow(window[0],cameraImage1);
-        cv::imshow(window[1],cameraImage2);
-        //cv::imshow("left camera",cameraImage2);
-        //if(!cameraImage1.empty() && cnt%2==0)cv::imshow("right camera",cameraImage1);
-        // else{
-        //     printf("not_exist!\n");
-        // }
-        //if(!cameraImage2.empty()&& cnt%2==1)cv::imshow("left camera",cameraImage2);
-        // else{
-        //     printf("not_exist!\n");
-        // }
-        //mtx.unlock();
-         cv::waitKey();
+            mtx.lock();
+        cv::imshow(window[0],cameraImages[0]);
+        cv::imshow(window[1],cameraImages[1]);
+            mtx.unlock();
+         cv::waitKey(1);
        // }
-        cnt++;
+     
     }
     printf("display end!\n");
     return ;
@@ -99,9 +90,7 @@ int main(int argc, char* argv[])
 
     // Before using any pylon methods, the pylon runtime must be initialized. 
     PylonInitialize();
-    //PylonInitialize();
-    //PylonTerminate(); 
-    //return 0;
+   
     Pylon::PylonAutoInitTerm autoInitTerm;
     
     try
@@ -152,9 +141,9 @@ int main(int argc, char* argv[])
         bool display_started=false;
         clock_t start = clock();
         CGrabResultPtr ptrGrabResult;
-        cv::namedWindow("camera1");//CV_WINDOW_NORMAL); 
-        cv::namedWindow("camera2");//,CV_WINDOW_NORMAL); 
-        
+        //cv::namedWindow("camera1");//CV_WINDOW_NORMAL); 
+        //cv::namedWindow("camera2");//,CV_WINDOW_NORMAL); 
+        printf("started!\n");
         for( uint32_t i = 0; i < c_countOfImagesToGrab && cameras.IsGrabbing(); ++i)
         {
             
@@ -179,22 +168,13 @@ int main(int argc, char* argv[])
             openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t *)pylonImage.GetBuffer());//me
            
             //cameraImages[cameraContextValue]=openCvImage;
-        if (cameraContextValue == 0)
-            {
-                //cameraImage1=openCvImage;
-                cv::imshow("camera1", openCvImage);
-                
-                //imwrite("right_img.png", openCvImage);
+            cameraImages[cameraContextValue]=openCvImage;
+            if(!display_started && i>=500){
+            std::thread display(Display);
+            display.detach();
+            display_started=true;
             }
-            else if (cameraContextValue == 1)
-            {
-               // cameraImage2=openCvImage;
-                cv::imshow("camera2", openCvImage);
-                //cv::waitKey(1);
-                //imwrite("right_img.png", openCvImage);
-
-            }
-            cv::waitKey(1);
+            //cv::waitKey(1);
             if(i%500==0){
                 clock_t end = clock();
                 const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
@@ -204,7 +184,7 @@ int main(int argc, char* argv[])
             }
 
            
-        // Create an OpenCV image
+       
        
       
      
@@ -221,14 +201,10 @@ int main(int argc, char* argv[])
             cout << "GrabSucceeded: " << ptrGrabResult->GrabSucceeded() << endl;
             cout << "SizeX: " << ptrGrabResult->GetWidth() << endl;
             cout << "SizeY: " << ptrGrabResult->GetHeight() << endl;
-            
+            const uint8_t *pImageBuffer = (uint8_t *)ptrGrabResult->GetBuffer();
             cout << "Gray value of first pixel: " << (uint32_t) pImageBuffer[0] << endl << endl;
 #endif
-            if(!display_started && i>=500&&0){
-            std::thread display(Display);
-            display.detach();
-            display_started=true;
-            }
+            
             
             
         }
