@@ -28,7 +28,7 @@ using namespace std;
 #define PAT_SIZE   (PAT_ROW*PAT_COL)
 #define ALL_POINTS (IMAGE_NUM*PAT_SIZE)
 #define CHESS_SIZE (20.0)       /* パターン1マスの1辺サイズ[mm] */
-bool calibration(string filename,string filepath,bool left);
+bool calibration(string filepath,string intrinsic_filename,bool left);
 void stereoCalib();
 
 vector<cv::Point2f> l_corners;
@@ -39,6 +39,9 @@ cv::Size img_size;
  vector<vector<cv::Point3f>> obj_points;
  vector<vector<cv::Point2f>> img_points_l;
  vector<vector<cv::Point2f>> img_points_r;
+const string intrinsic_filename_left="l_intrinsic.xml";
+const string intrinsic_filename_right="r_intrinsic.xml";
+const string extrinsic_filename="extrinsic.xml";
 int main(){
    
     
@@ -61,8 +64,8 @@ int main(){
     {
         obj_points.push_back(object);
     }
-    bool success_right=calibration("camera_right.xml","./calib_img/right",0);
-    bool success_left=calibration("camera_left.xml","./calib_img/left",1);
+    bool success_right=calibration("./calib_img/right",intrinsic_filename_right,0);
+    bool success_left=calibration("./calib_img/left",intrinsic_filename_left,1);
 
     if(success_left&&success_right){
         printf("calibration completed!\n");
@@ -76,7 +79,7 @@ int main(){
     
 }
 
-bool calibration(string filename,string filepath,bool left)
+bool calibration(string filepath,string intrinsic_filename,bool left)
 {
     int i, j, k;
     int corner_count, found;
@@ -174,16 +177,22 @@ bool calibration(string filename,string filepath,bool left)
         dr=dist_coefs;
     }
     // (6)XMLファイルへの書き出し
-    cv::FileStorage fs(filename, cv::FileStorage::WRITE);
-    if(!fs.isOpened())
+    cv::FileStorage fs1(intrinsic_filename, cv::FileStorage::WRITE);
+    if(!fs1.isOpened())
     {
         cerr << "File can not be opened." << endl;
         return -1;
     }
-
-    fs << "intrinsic" << cam_mat;
-    fs << "distortion" << dist_coefs;
-    fs.release();
+    if(left){
+    fs1 << "M1" << cam_mat;
+    fs1 << "D1" << dist_coefs;
+    }
+    else{
+    fs1 << "M2" << cam_mat;
+    fs1 << "D2" << dist_coefs;
+    
+    }
+    fs1.release();
 
     return true;
 }
@@ -204,7 +213,22 @@ printf("Done Calibration\n");
 printf("Starting Rectification\n");
 cv::Mat R1, R2, P1, P2, Q;
 cv::stereoRectify(kl, dl,kr, dr, img_size, r, t, R1, R2, P1, P2, Q);
-printf("Done Rectification\n");
 
+printf("Done Rectification\n");
+cv::Mat map11, map12, map21, map22;
+initUndistortRectifyMap(kl, dl, R1, P1, img_size, CV_16SC2, map11, map12);
+initUndistortRectifyMap(kr, dr, R2, P2, img_size, CV_16SC2, map21, map22);
+ cv::FileStorage fs(extrinsic_filename,cv:: FileStorage::WRITE);
+fs<<"R"<<r;
+fs<<"T"<<t;
+
+cv::Mat img1r, img2r;
+cv::Mat img1 = cv::imread("./calib_img/left0.png", 1);
+cv::Mat img2 = cv::imread("./calib_img/right0.png",1);
+cv::remap(img1, img1r, map11, map12,0);
+cv::remap(img2, img2r, map21, map22,0);
+
+img1 = img1r;
+img2 = img2r;
 
 }

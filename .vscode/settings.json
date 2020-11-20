@@ -57,6 +57,8 @@
         "random": "cpp",
         "set": "cpp",
         "string": "cpp",
-        "bit": "cpp"
+        "bit": "cpp",
+        "iomanip": "cpp",
+        "valarray": "cpp"
     }
 }
