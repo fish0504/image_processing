@@ -16,6 +16,8 @@
 #include <stdio.h>
 #include <sstream>
 
+#define sad 5
+#define num 96
 using namespace cv;
 
 static void print_help(char** argv)
@@ -44,8 +46,8 @@ static void saveXYZ(const char* filename, const Mat& mat)
 const std::string intrinsic_filename_left="l_intrinsic.xml";
 const std::string intrinsic_filename_right="r_intrinsic.xml";
 const std::string extrinsic_filename="extrinsic.xml";
-const std::string img1_filename="./calib_img/left0.png";
-const std::string img2_filename="./calib_img/right0.png";
+const std::string img1_filename="./calib_img2/left/matching_sample_left.png";
+const std::string img2_filename="./calib_img2/right/matching_sample_right.png";
 
 
 int main(int argc, char** argv)
@@ -57,11 +59,12 @@ int main(int argc, char** argv)
 
     enum { STEREO_BM=0, STEREO_SGBM=1, STEREO_HH=2, STEREO_VAR=3, STEREO_3WAY=4, STEREO_HH4=5 };
     int alg = STEREO_SGBM;
-    int SADWindowSize=5, numberOfDisparities=256;
+    
     bool no_display=false;
-    bool color_display=true;
+    bool color_display=false;
     float scale=1.0;
-
+    int SADWindowSize= sad;
+    int numberOfDisparities= num;
     Ptr<StereoBM> bm = StereoBM::create(16,9);
     Ptr<StereoSGBM> sgbm = StereoSGBM::create(0,16,3);
    
@@ -285,7 +288,7 @@ int main(int argc, char** argv)
         imshow("right", img2);
         namedWindow(disp_name, cv::WINDOW_AUTOSIZE);
         imshow(disp_name, color_display ? disp8_3c : disp8);
-
+        //imwrite("disp_result.png",disp8);
         printf("press ESC key or CTRL+C to close...");
         fflush(stdout);
         printf("\n");
