@@ -43,6 +43,8 @@ using namespace std;
 // Number of images to be grabbed.
 static const uint32_t c_countOfImagesToGrab = 10000;
 
+#include"convert.cpp"
+#include"stereomatch.cpp"
 // Limits the amount of cameras used for grabbing.
 // It is important to manage the available bandwidth when grabbing with multiple cameras.
 // This applies, for instance, if two GigE cameras are connected to the same network adapter via a switch.
@@ -58,6 +60,8 @@ cv::Mat cameraImage1;
 cv::Mat cameraImage2;
 cv::Mat cameraImages[2];
 string window[2]={"right camera","left camera"};
+cv::Mat left_img;
+cv::Mat right_img;
 void Display()
 {
 
@@ -70,7 +74,8 @@ void Display()
     int cnt=0;
     printf("display_start!\n");
     //while(cnt<1e5)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
-    while(cnt<1000000)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
+    init_stereomatch();
+    while(cnt<c_countOfImagesToGrab)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
     {
         cnt++;
          for (size_t i = 0; i<camerasDevices.numberOfCameras; i++){
@@ -78,24 +83,14 @@ void Display()
                                                               camerasDevices.cameraParams[i].height, camerasDevices.cameraParams[i].pixelormat);
 
             if (frame[i].cols > 0 && frame[i].rows > 0){
-                //if(yoloDnn)
-                    //yolo objects overlayed on the captured image
-                    //yoloDnn->OverlayObjects(frame[i], i);
-
                 //show the image
                 cv::imshow(window[i], frame[i]);
-            }
-            // if(cameraImages[0].empty()||cameraImages[1].empty()){
-            //     printf("no image!\n");
-            //     continue;
-            // }
-            //mtx.lock();
-            //if(!cameraImages[0].empty())cv::imshow(window[0],cameraImages[0]);
 
-            //if(!cameraImages[1].empty())cv::imshow(window[1],cameraImages[1]);
-            //mtx.unlock();
+            }
+           
          cv::waitKey(1);
         }
+        if(cnt%10000)cv::Mat res=getDepthImage(frame[1],frame[0]);
      
     }
     printf("display end!\n");
