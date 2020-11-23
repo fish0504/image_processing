@@ -9,5 +9,5 @@ def mul(n):
     cv.imshow("depth",n)
     np.save('depth',n)
     # ndarrayのタプルを返す
-    #return (n,n)
-    return
+    return (n,n)
+    #return

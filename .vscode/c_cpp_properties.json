@@ -5,13 +5,17 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/usr/local/include/opencv4",
-                "/opt/pylon/include"
+                "/opt/pylon/include",
+                "/usr/include",
+                "/usr/include/python3.6m",
+                "/usr/include/boost/python"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",// /usr/bin/clang",
             "cStandard": "c11",
             "cppStandard": "c++14",
             "intelliSenseMode": "clang-x64"
+            //"usingpython": 3.6 : "/usr/include/x86_64-linux-gnu/python3.6m/"
         }
     ],
     "version": 4

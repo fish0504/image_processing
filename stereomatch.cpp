@@ -1,32 +1,7 @@
-/*
- *  stereo_match.cpp
- *  calibration
- *
- *  Created by Victor  Eruhimov on 1/18/10.
- *  Copyright 2010 Argus Corp. All rights reserved.
- *
- */
 
-#include "opencv2/calib3d/calib3d.hpp"
-#include "opencv2/imgproc.hpp"
-#include "opencv2/imgcodecs.hpp"
-#include "opencv2/highgui.hpp"
-#include "opencv2/core/utility.hpp"
+#include "stereomatch.hpp"
 
-#include <stdio.h>
-#include <sstream>
 
-#define sad 5
-#define num 96
-using namespace cv;
-
-static void print_help(char** argv)
-{
-    printf("\nDemo stereo matching converting L and R images into disparity and point clouds\n");
-    printf("\nUsage: %s <left_image> <right_image> [--algorithm=bm|sgbm|hh|hh4|sgbm3way] [--blocksize=<block_size>]\n"
-           "[--max-disparity=<max_disparity>] [--scale=scale_factor>] [-i=<intrinsic_filename>] [-e=<extrinsic_filename>]\n"
-           "[--no-display] [--color] [-o=<disparity_image>] [-p=<point_cloud_file>]\n", argv[0]);
-}
 
 static void saveXYZ(const char* filename, const Mat& mat)
 {
@@ -43,104 +18,18 @@ static void saveXYZ(const char* filename, const Mat& mat)
     }
     fclose(fp);
 }
-const std::string intrinsic_filename_left="l_intrinsic.xml";
-const std::string intrinsic_filename_right="r_intrinsic.xml";
-const std::string extrinsic_filename="extrinsic.xml";
-const std::string img1_filename="./calib_img2/left/matching_sample_left.png";
-const std::string img2_filename="./calib_img2/right/matching_sample_right.png";
 
 
-int main(int argc, char** argv)
+bool init_stereomatch()
 {
-   
-    std::string intrinsic_filename = "";
-    std::string disparity_filename = "dist.npy";
-    std::string point_cloud_filename = "";
-
-    enum { STEREO_BM=0, STEREO_SGBM=1, STEREO_HH=2, STEREO_VAR=3, STEREO_3WAY=4, STEREO_HH4=5 };
-    int alg = STEREO_SGBM;
-    
-    bool no_display=false;
-    bool color_display=false;
-    float scale=1.0;
-    int SADWindowSize= sad;
-    int numberOfDisparities= num;
-    Ptr<StereoBM> bm = StereoBM::create(16,9);
-    Ptr<StereoSGBM> sgbm = StereoSGBM::create(0,16,3);
-   
-    alg=STEREO_SGBM;
-   
-   
-    if( alg < 0 )
-    {
-        printf("Command-line parameter error: Unknown stereo algorithm\n\n");
-        print_help(argv);
-        return -1;
-    }
-    if ( numberOfDisparities < 1 || numberOfDisparities % 16 != 0 )
-    {
-        printf("Command-line parameter error: The max disparity (--maxdisparity=<...>) must be a positive integer divisible by 16\n");
-        print_help(argv);
-        return -1;
-    }
-    if (scale < 0)
-    {
-        printf("Command-line parameter error: The scale factor (--scale=<...>) must be a positive floating-point number\n");
-        return -1;
-    }
-    if (SADWindowSize < 1 || SADWindowSize % 2 != 1)
-    {
-        printf("Command-line parameter error: The block size (--blocksize=<...>) must be a positive odd number\n");
-        return -1;
-    }
-    if( img1_filename.empty() || img2_filename.empty() )
-    {
-        printf("Command-line parameter error: both left and right images must be specified\n");
-        return -1;
-    }
-    if((!intrinsic_filename_right.empty())^ (!extrinsic_filename.empty())  )
-    {
-        printf("Command-line parameter error: either both intrinsic and extrinsic parameters must be specified, or none of them (when the stereo pair is already rectified)\n");
-        return -1;
-    }
-
-    if( extrinsic_filename.empty() && !point_cloud_filename.empty() )
-    {
-        printf("Command-line parameter error: extrinsic and intrinsic parameters must be specified to compute the point cloud\n");
-        return -1;
-    }
-
-    int color_mode = alg == STEREO_BM ? 0 : -1;
-    Mat img1 = imread(img1_filename, color_mode);
-    Mat img2 = imread(img2_filename, color_mode);
-
-    if (img1.empty())
-    {
-        printf("Command-line parameter error: could not load the first input image file\n");
-        return -1;
-    }
-    if (img2.empty())
-    {
-        printf("Command-line parameter error: could not load the second input image file\n");
-        return -1;
-    }
-
-    if (scale != 1.f)
-    {
-        Mat temp1, temp2;
-        int method = scale < 1 ? INTER_AREA : INTER_CUBIC;
-        resize(img1, temp1, Size(), scale, scale, method);
-        img1 = temp1;
-        resize(img2, temp2, Size(), scale, scale, method);
-        img2 = temp2;
-    }
-
-    Size img_size = img1.size();
-
-    Rect roi1, roi2;
-    Mat Q;
-
-    if( !intrinsic_filename.empty() )
+std::string intrinsic_filename_left="l_intrinsic.xml";
+std::string intrinsic_filename_right="r_intrinsic.xml";
+std::string extrinsic_filename="extrinsic.xml";
+std::string img1_filename="./calib_img2/left/matching_sample_left.png";
+std::string img2_filename="./calib_img2/right/matching_sample_right.png";
+bm = StereoBM::create(16,9);
+sgbm = StereoSGBM::create(0,16,3);
+    if( !intrinsic_filename_left.empty() )
     {
         // reading intrinsic parameters
         FileStorage fs(intrinsic_filename_left, FileStorage::READ);
@@ -150,7 +39,7 @@ int main(int argc, char** argv)
             return -1;
         }
 
-        Mat M1, D1, M2, D2;
+        
         fs["M1"] >> M1;
         fs["D1"] >> D1;
         fs.open(intrinsic_filename_right, FileStorage::READ);
@@ -167,24 +56,66 @@ int main(int argc, char** argv)
             return -1;
         }
 
-        Mat R, T, R1, P1, R2, P2;
+        
         fs["R"] >> R;
         fs["T"] >> T;
-
-        stereoRectify( M1, D1, M2, D2, img_size, R, T, R1, R2, P1, P2, Q, CALIB_ZERO_DISPARITY, -1, img_size, &roi1, &roi2 );
-
-        Mat map11, map12, map21, map22;
-        initUndistortRectifyMap(M1, D1, R1, P1, img_size, CV_16SC2, map11, map12);
-        initUndistortRectifyMap(M2, D2, R2, P2, img_size, CV_16SC2, map21, map22);
-
-        Mat img1r, img2r;
-        remap(img1, img1r, map11, map12, INTER_LINEAR);
-        remap(img2, img2r, map21, map22, INTER_LINEAR);
-
-        img1 = img1r;
-        img2 = img2r;
+    
+        
     }
+    else{
+        return false;
+    }
+    return true;
+}
 
+cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
+   
+    int color_mode = alg == STEREO_BM ? 0 : -1;
+    
+    //Mat img1 = imread(img1_filename, color_mode);
+    //Mat img2 = imread(img2_filename, color_mode);
+    if (img1.empty())
+    {
+        printf("Command-line parameter error: could not load the first input image file\n");
+        //return -1;
+    }
+    if (img2.empty())
+    {
+        printf("Command-line parameter error: could not load the second input image file\n");
+        //return -1;
+    }
+    cv::Rect roi(cv::Point2i(w/2-roi_width/2,h/2-roi_height/2),cv::Size(roi_width,roi_height));
+    printf("now1\n");
+    
+    if (scale != 1.f)
+    {
+        Mat temp1, temp2;
+        int method = scale < 1 ? INTER_AREA : INTER_CUBIC;
+        resize(img1, temp1, Size(), scale, scale, method);
+        img1 = temp1;
+        resize(img2, temp2, Size(), scale, scale, method);
+        img2 = temp2;
+    }
+    img1=img1(roi);
+    img2=img2(roi);
+    
+    Size img_size = img1.size();
+    Rect roi1,roi2;
+    Mat Q;
+    
+    printf("now2\n");
+    stereoRectify( M1, D1, M2, D2,img_size , R, T, R1, R2, P1, P2, Q, CALIB_ZERO_DISPARITY, -1,img_size, &roi1, &roi2 );
+    printf("now3\n");
+    Mat map11, map12, map21, map22;
+    initUndistortRectifyMap(M1, D1, R1, P1, img_size, CV_16SC2, map11, map12);
+    initUndistortRectifyMap(M2, D2, R2, P2, img_size, CV_16SC2, map21, map22);
+    
+    Mat img1r, img2r;
+    remap(img1, img1r, map11, map12, INTER_LINEAR);
+    remap(img2, img2r, map21, map22, INTER_LINEAR);
+    
+    img1 = img1r;
+    img2 = img2r;
     numberOfDisparities = numberOfDisparities > 0 ? numberOfDisparities : ((img_size.width/8) + 15) & -16;
 
     bm->setROI1(roi1);
@@ -226,7 +157,7 @@ int main(int argc, char** argv)
     //Mat img1p, img2p, dispp;
     //copyMakeBorder(img1, img1p, 0, 0, numberOfDisparities, 0, IPL_BORDER_REPLICATE);
     //copyMakeBorder(img2, img2p, 0, 0, numberOfDisparities, 0, IPL_BORDER_REPLICATE);
-
+    
     int64 t = getTickCount();
     float disparity_multiplier = 1.0f;
     if( alg == STEREO_BM )
@@ -251,6 +182,7 @@ int main(int argc, char** argv)
         disp.convertTo(disp8, CV_8U);
 
     Mat disp8_3c;
+    printf("now4\n");
     if (color_display)
         cv::applyColorMap(disp8, disp8_3c, COLORMAP_TURBO);
 
@@ -272,12 +204,14 @@ int main(int argc, char** argv)
     if( !no_display )
     {
         std::ostringstream oss;
+        std::string save_name;
         oss << "disparity  " << (alg==STEREO_BM ? "bm" :
                                  alg==STEREO_SGBM ? "sgbm" :
                                  alg==STEREO_HH ? "hh" :
                                  alg==STEREO_VAR ? "var" :
                                  alg==STEREO_HH4 ? "hh4" :
                                  alg==STEREO_3WAY ? "sgbm3way" : "");
+        save_name=oss.str();
         oss << "  blocksize:" << (alg==STEREO_BM ? SADWindowSize : sgbmWinSize);
         oss << "  max-disparity:" << numberOfDisparities;
         std::string disp_name = oss.str();
@@ -288,7 +222,8 @@ int main(int argc, char** argv)
         imshow("right", img2);
         namedWindow(disp_name, cv::WINDOW_AUTOSIZE);
         imshow(disp_name, color_display ? disp8_3c : disp8);
-        //imwrite("disp_result.png",disp8);
+        imwrite("./disp_results/"+save_name+".png",disp8);
+        printf("depth:\nwidth %d height %d",disp8.cols,disp8.rows);
         printf("press ESC key or CTRL+C to close...");
         fflush(stdout);
         printf("\n");
@@ -299,5 +234,5 @@ int main(int argc, char** argv)
         }
     }
 
-    return 0;
+    return disp8;
 }

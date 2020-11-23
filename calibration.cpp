@@ -1,35 +1,4 @@
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <iomanip>
-#include <opencv2/opencv.hpp>
-#include "opencv2/calib3d.hpp"
-//#include <opencv/highgui.h>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <vector>
-#include "opencv2/core.hpp"
-#include <opencv2/core/utility.hpp>
-#include "opencv2/imgproc.hpp"
-#include "opencv2/calib3d.hpp"
-//#include "opencv2/imgcodecs.hpp"
-#include "opencv2/videoio.hpp"
-//#include "opencv2/highgui.hpp"
-#include <cctype>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-
-using namespace std;
-
-#define IMAGE_NUM  (10)         /* 画像数 */
-#define PAT_ROW    (8)          /* パターンの行数 */
-#define PAT_COL    (14)         /* パターンの列数 */
-#define PAT_SIZE   (PAT_ROW*PAT_COL)
-#define ALL_POINTS (IMAGE_NUM*PAT_SIZE)
-#define CHESS_SIZE (20.0)       /* パターン1マスの1辺サイズ[mm] */
-bool calibration(string filepath,string intrinsic_filename,bool left);
-void stereoCalib();
+#include "calibration.hpp"
 
 vector<cv::Point2f> l_corners;
 vector<cv::Point2f> r_corners;
@@ -64,8 +33,8 @@ int main(){
     {
         obj_points.push_back(object);
     }
-    bool success_right=calibration("./calib_img/right",intrinsic_filename_right,0);
-    bool success_left=calibration("./calib_img/left",intrinsic_filename_left,1);
+    bool success_right=calibration("./calib_img2/right/right",intrinsic_filename_right,0);
+    bool success_left=calibration("./calib_img2/left/left",intrinsic_filename_left,1);
 
     if(success_left&&success_right){
         printf("calibration completed!\n");
