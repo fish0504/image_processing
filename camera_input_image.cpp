@@ -75,6 +75,7 @@ void Display()
     printf("display_start!\n");
     //while(cnt<1e5)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
     init_stereomatch();
+    init_converter();
     while(cnt<c_countOfImagesToGrab)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
     {
         cnt++;
