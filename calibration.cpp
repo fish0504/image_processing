@@ -1,16 +1,6 @@
 #include "calibration.hpp"
 
-vector<cv::Point2f> l_corners;
-vector<cv::Point2f> r_corners;
-vector<cv::Point3f> object;
-cv::Mat kl,kr,dl,dr;
-cv::Size img_size;
- vector<vector<cv::Point3f>> obj_points;
- vector<vector<cv::Point2f>> img_points_l;
- vector<vector<cv::Point2f>> img_points_r;
-const string intrinsic_filename_left="l_intrinsic.xml";
-const string intrinsic_filename_right="r_intrinsic.xml";
-const string extrinsic_filename="extrinsic.xml";
+
 int main(){
    
     
@@ -33,8 +23,8 @@ int main(){
     {
         obj_points.push_back(object);
     }
-    bool success_right=calibration("./calib_img2/right/right",intrinsic_filename_right,0);
-    bool success_left=calibration("./calib_img2/left/left",intrinsic_filename_left,1);
+    bool success_right=calibration("./calib_img_mini/right/right",intrinsic_filename_right,0);
+    bool success_left=calibration("./calib_img_mini/left/left",intrinsic_filename_left,1);
 
     if(success_left&&success_right){
         printf("calibration completed!\n");
@@ -65,6 +55,7 @@ bool calibration(string filepath,string intrinsic_filename,bool left)
         ostringstream ostr;
         ostr << filepath << i << ".png";
         cv::Mat src = cv::imread(ostr.str());
+        
         if (src.empty())
         {
             cerr << "cannot load image file : " << ostr.str() << endl;
@@ -191,13 +182,5 @@ initUndistortRectifyMap(kr, dr, R2, P2, img_size, CV_16SC2, map21, map22);
 fs<<"R"<<r;
 fs<<"T"<<t;
 
-cv::Mat img1r, img2r;
-cv::Mat img1 = cv::imread("./calib_img/left0.png", 1);
-cv::Mat img2 = cv::imread("./calib_img/right0.png",1);
-cv::remap(img1, img1r, map11, map12,0);
-cv::remap(img2, img2r, map21, map22,0);
-
-img1 = img1r;
-img2 = img2r;
 
 }

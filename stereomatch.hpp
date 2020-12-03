@@ -17,7 +17,7 @@
 #include <sstream>
 
 #define sad 5
-#define num 64     //disparity
+#define num 32     //disparity
 #define w 800
 #define h 600
 #define roi_width 400
@@ -46,3 +46,4 @@ Ptr<StereoSGBM> sgbm;
 static void saveXYZ(const char* filename, const Mat& mat);
 bool init_stereomatch();
 cv::Mat getDepthImage();//cv::Mat img1,cv::Mat img2);
+std::string disp_name;

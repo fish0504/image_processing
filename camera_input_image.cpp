@@ -85,6 +85,8 @@ void Display()
 
             if (frame[i].cols > 0 && frame[i].rows > 0){
                 //show the image
+                cv::rotate(frame[i],frame[i],ROTATE_90_COUNTERCLOCKWISE);
+               
                 cv::imshow(window[i], frame[i]);
 
             }

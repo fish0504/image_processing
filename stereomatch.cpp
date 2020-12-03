@@ -1,4 +1,3 @@
-
 #include "stereomatch.hpp"
 
 
@@ -22,9 +21,9 @@ static void saveXYZ(const char* filename, const Mat& mat)
 
 bool init_stereomatch()
 {
-std::string intrinsic_filename_left="l_intrinsic.xml";
-std::string intrinsic_filename_right="r_intrinsic.xml";
-std::string extrinsic_filename="extrinsic.xml";
+std::string intrinsic_filename_left="l2_intrinsic.xml";
+std::string intrinsic_filename_right="r2_intrinsic.xml";
+std::string extrinsic_filename="extrinsic2.xml";
 std::string img1_filename="./calib_img2/left/matching_sample_left.png";
 std::string img2_filename="./calib_img2/right/matching_sample_right.png";
 bm = StereoBM::create(16,9);
@@ -59,8 +58,19 @@ sgbm = StereoSGBM::create(0,16,3);
         
         fs["R"] >> R;
         fs["T"] >> T;
-    
-        
+        std::ostringstream oss;
+        std::string save_name;
+        oss << "disparity  " << (alg==STEREO_BM ? "bm" :
+                                 alg==STEREO_SGBM ? "sgbm" :
+                                 alg==STEREO_HH ? "hh" :
+                                 alg==STEREO_VAR ? "var" :
+                                 alg==STEREO_HH4 ? "hh4" :
+                                 alg==STEREO_3WAY ? "sgbm3way" : "");
+        save_name=oss.str();
+        //oss << "  blocksize:" << (alg==STEREO_BM ? SADWindowSize : sgbmWinSize);
+        oss << "  max-disparity:" << numberOfDisparities;
+        disp_name = oss.str();
+        namedWindow(disp_name, cv::WINDOW_AUTOSIZE);
     }
     else{
         return false;
@@ -85,34 +95,34 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
         //return -1;
     }
     cv::Rect roi(cv::Point2i(w/2-roi_width/2,h/2-roi_height/2),cv::Size(roi_width,roi_height));
-    printf("now1\n");
+    //printf("now1\n");
     
     if (scale != 1.f)
     {
         Mat temp1, temp2;
         int method = scale < 1 ? INTER_AREA : INTER_CUBIC;
-        resize(img1, temp1, Size(), scale, scale, method);
+        cv::resize(img1, temp1, Size(), scale, scale, method);
         img1 = temp1;
-        resize(img2, temp2, Size(), scale, scale, method);
+        cv::resize(img2, temp2, Size(), scale, scale, method);
         img2 = temp2;
     }
-    img1=img1(roi);
-    img2=img2(roi);
+    //img1=img1(roi);
+    //img2=img2(roi);
     
     Size img_size = img1.size();
     Rect roi1,roi2;
     Mat Q;
     
-    printf("now2\n");
-    stereoRectify( M1, D1, M2, D2,img_size , R, T, R1, R2, P1, P2, Q, CALIB_ZERO_DISPARITY, -1,img_size, &roi1, &roi2 );
-    printf("now3\n");
+    //printf("now2\n");
+    cv::stereoRectify( M1, D1, M2, D2,img_size , R, T, R1, R2, P1, P2, Q, CALIB_ZERO_DISPARITY, -1,img_size, &roi1, &roi2 );
+    //printf("now3\n");
     Mat map11, map12, map21, map22;
-    initUndistortRectifyMap(M1, D1, R1, P1, img_size, CV_16SC2, map11, map12);
-    initUndistortRectifyMap(M2, D2, R2, P2, img_size, CV_16SC2, map21, map22);
+    cv::initUndistortRectifyMap(M1, D1, R1, P1, img_size, CV_16SC2, map11, map12);
+    cv::initUndistortRectifyMap(M2, D2, R2, P2, img_size, CV_16SC2, map21, map22);
     
     Mat img1r, img2r;
-    remap(img1, img1r, map11, map12, INTER_LINEAR);
-    remap(img2, img2r, map21, map22, INTER_LINEAR);
+    cv::remap(img1, img1r, map11, map12, INTER_LINEAR);
+    cv::remap(img2, img2r, map21, map22, INTER_LINEAR);
     
     img1 = img1r;
     img2 = img2r;
@@ -173,7 +183,7 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
             disparity_multiplier = 16.0f;
     }
     t = getTickCount() - t;
-    printf("Time elapsed: %fms\n", t*1000/getTickFrequency());
+    //printf("Time elapsed: %fms\n", t*1000/getTickFrequency());
 
     //disp = dispp.colRange(numberOfDisparities, img1p.cols);
     if( alg != STEREO_VAR )
@@ -182,56 +192,46 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
         disp.convertTo(disp8, CV_8U);
 
     Mat disp8_3c;
-    printf("now4\n");
-    if (color_display)
-        cv::applyColorMap(disp8, disp8_3c, COLORMAP_TURBO);
+    //printf("now4\n");
+    // if (color_display)
+    //     cv::applyColorMap(disp8, disp8_3c, COLORMAP_TURBO);
 
-    if(!disparity_filename.empty())
-        //imwrite(disparity_filename, color_display ? disp8_3c : disp8);
+    // if(!disparity_filename.empty())
+    //     //imwrite(disparity_filename, color_display ? disp8_3c : disp8);
 
-    if(!point_cloud_filename.empty())
-    {
-        printf("storing the point cloud...");
-        fflush(stdout);
-        Mat xyz;
-        Mat floatDisp;
-        disp.convertTo(floatDisp, CV_32F, 1.0f / disparity_multiplier);
-        reprojectImageTo3D(floatDisp, xyz, Q, true);
-        saveXYZ(point_cloud_filename.c_str(), xyz);
-        printf("\n");
-    }
+    // if(!point_cloud_filename.empty())
+    // {
+    //     printf("storing the point cloud...");
+    //     fflush(stdout);
+    //     Mat xyz;
+    //     Mat floatDisp;
+    //     disp.convertTo(floatDisp, CV_32F, 1.0f / disparity_multiplier);
+    //     reprojectImageTo3D(floatDisp, xyz, Q, true);
+    //     saveXYZ(point_cloud_filename.c_str(), xyz);
+    //     printf("\n");
+    // }
 
     if( !no_display )
     {
-        std::ostringstream oss;
-        std::string save_name;
-        oss << "disparity  " << (alg==STEREO_BM ? "bm" :
-                                 alg==STEREO_SGBM ? "sgbm" :
-                                 alg==STEREO_HH ? "hh" :
-                                 alg==STEREO_VAR ? "var" :
-                                 alg==STEREO_HH4 ? "hh4" :
-                                 alg==STEREO_3WAY ? "sgbm3way" : "");
-        save_name=oss.str();
-        oss << "  blocksize:" << (alg==STEREO_BM ? SADWindowSize : sgbmWinSize);
-        oss << "  max-disparity:" << numberOfDisparities;
-        std::string disp_name = oss.str();
+        
 
-        namedWindow("left", cv::WINDOW_NORMAL);
-        imshow("left", img1);
-        namedWindow("right", cv::WINDOW_NORMAL);
-        imshow("right", img2);
-        namedWindow(disp_name, cv::WINDOW_AUTOSIZE);
+        // namedWindow("left", cv::WINDOW_NORMAL);
+        // imshow("left", img1);
+        // namedWindow("right", cv::WINDOW_NORMAL);
+        // imshow("right", img2);
+        
         imshow(disp_name, color_display ? disp8_3c : disp8);
-        imwrite("./disp_results/"+save_name+".png",disp8);
-        printf("depth:\nwidth %d height %d",disp8.cols,disp8.rows);
-        printf("press ESC key or CTRL+C to close...");
-        fflush(stdout);
-        printf("\n");
-        while(1)
-        {
-            if(waitKey() == 27) //ESC (prevents closing on actions like taking screenshots)
-                break;
-        }
+        convertToPython(disp8);
+        //imwrite("./disp_results/"+save_name+".png",disp8);
+        //printf("depth:\nwidth %d height %d",disp8.cols,disp8.rows);
+        //printf("press ESC key or CTRL+C to close...");
+        //fflush(stdout);
+        //printf("\n");
+        // while(1)
+        // {
+        //     if(waitKey() == 27) //ESC (prevents closing on actions like taking screenshots)
+        //         break;
+        // }
     }
 
     return disp8;
