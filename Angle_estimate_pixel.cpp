@@ -1,92 +1,80 @@
-#include<opencv2/opencv.hpp>
-#include<iostream>
-#include"threshold.hpp"
-#include"calibration.hpp"
-#define display  1
-#define write 0
-using namespace cv;
-#define use_simple_compare 0
-
-vector<Mat>img_stocks(15);
-int angles[12];
+#include "Angle_estimate_pixel.hpp"
 
 //calculate similarity by comparing pixels
-double  cal(Mat& img ,Mat& src){
+double  caluculate_similarity(Mat& img ,Mat& src,Rect roi){
     
     int width=img.cols;
     int height=img.rows;
-    //int step=img.step;
     int elem=img.elemSize();
     double ret=0;
+    //img=img(roi);
+    src=src(roi);
+#if  BIN
+    cv::threshold(src,src,50,255,cv::THRESH_BINARY);
+#endif
     for(int i=0;i<height;i++){
         int step=i*width;
         for(int k=0;k<width;k++){
-           //ret+=img.data[step+k*elem]==src.data[step+k*elem] ? 1:0
            if(img.data[step+k*elem]==src.data[step+k*elem])ret++;
         }
     }
     return ret/(width*height);
 }
-void prepare(){
-    for(int k=0;k<12;k++){
-            //if(i==k)continue;
-            std::ostringstream oss;
-            oss<<"./binary_angles/bin_ang"<<angles[k]<<".png";
-            Mat src=imread(oss.str(),0);
-            //Rect roi=selectROI("select_roi_for_sample",src,true,false);
-            Mat black(src.size(),0,cv::Scalar(0));
-            Mat tmp=src(roi);
-            tmp.copyTo(black(roi));
-            img_stocks[k]=black;
-            std::ostringstream oss_out;
-            oss_out<<"./binary_angles/bin2_ang"<<angles[k]<<".png";
-            imwrite(oss_out.str(),black);
-    }
-    return ;
+
+
+
+//input (now_angular_index,now_image)
+//output (estimated_angular_index)
+int estimateAngular(int now_angular_index,cv::Mat& now_image){
     
-}
-int main(){
-    
-    const string filepath="./test_angle/ang";  
+   
     //const string filepath="./binary_angles/bin_ang";
     
-    angles[0]=0;
-    for(int i=1;i<12;i++)angles[i]=angles[i-1]+15;
-    //prepare();
-    for(int i=0;i<13;i++){
+    angles[0]=0.0;
+    for(int i=1;i<AngleDivision;i++)angles[i]=angles[i-1]+(360.0/AngleDivision);
+    
+    for(int now_angular_index=0;now_angular_index<AngleDivision;now_angular_index++){
+        for(int l=0;l<2;l++){
         ostringstream ostr;
-        ostr << filepath << angles[i] << ".png";
-        cv::Mat imgl,imgr;
+        
+        //input the pictures taken now
+        if(l==0)ostr << filepathLeft << angles[now_angular_index] << ".png";
+        else{
+            ostr << filepathRight << angles[now_angular_index] << ".png";
+        }
+        cv::Mat imgl;
         imgl=cv::imread(ostr.str(),0);
 #if display       
         cv::imshow("oringinl_left",imgl);
 #endif
-       
-        cv::threshold(imgl,imgl,130,255,cv::THRESH_BINARY);
-        clock_t end=clock();
-        Rect roi=selectROI("select_roi",imgl,true,false);
-        Mat black(imgl.size(),0,cv::Scalar(0));
-        Mat tmp=imgl(roi);
-        tmp.copyTo(black(roi));
+        
 
-        //imshow("black",black);
-        imgl=black;
-        clock_t start=clock();
-        printf("%lf :ms\n" ,((end-start)/100.0));///200);
+        
        
-         double MAX=-1;
-         double MIN=1.0;
+        double MAX=-1;
+        double MIN=1.0;
         int best_match=-1;
         cv::Mat best;
-        for(int k=0;k<12;k++){
+        imgl=imgl(rois[l]);
+#if BIN
+        cv::threshold(imgl,imgl,50,255,cv::THRESH_BINARY);
+#endif
+        clock_t start=clock();
+        for(int k=0;k<3;k++){
+            int index=now_angular_index+search_range[k];
+            if(index<0)index+=AngleDivision;
+            else if(index>=AngleDivision)index%=AngleDivision;
             std::ostringstream oss_out;
-            oss_out<<"./binary_angles/bin2_ang"<<angles[k]<<".png";
+            if(l==0)oss_out<< filepathLeft<<angles[index]<<".png";
+            else{
+                oss_out<< filepathRight<<angles[index]<<".png";
+            }
             Mat src=imread(oss_out.str(),0);
 #if use_simple_compare
-            double now=cal(imgl,src);
+            double now=caluculate_similarity(imgl,src,rois[l]);
             if(MAX<now){
                 MAX=now;
-                best_match=k;
+                best_match=index;
                 best=src;
             }
 #else
@@ -97,15 +85,25 @@ int main(){
                     best=src;
             }
 #endif
-            printf("similarity with %d : %lf\n",angles[k],now);
+
+            printf("similarity with %lf : %lf\n",angles[index],now);
         }
-        printf("img %d  estimated ang %d\n\n",angles[i],angles[best_match]);
-        cv::imshow("best_matched",best);
+        clock_t end=clock();
+        if(l==0)printf("camera left img_angle %lf  estimated ang %lf\n\n",angles[now_angular_index],angles[best_match]);
+        else
+        {
+            printf("camera right img_angle %lf  estimated ang %lf\n\n",angles[now_angular_index],angles[best_match]);
+        }
+        
+        printf("%lf :ms\n" ,((end-start)/1000.0));///200);
+        //cv::imshow("best_matched",best);
+
+        
 #if display
         //cv::imshow("vinalized_left",imgl);
         
         
-        int key=cv::waitKey(-1);
+        
         if(key=='d')continue;
 #endif
 
@@ -114,7 +112,14 @@ int main(){
         oss<<"./bina_angles/bin_ang"<<angles[i]<<".png";
         cv::imwrite(oss.str(),imgl);
 #endif
-        if(key=='q')return 0;
+        printf("continue ? press[y/n]");
+        cv::imshow("best_matched",best);
+        int key=cv::waitKey(-1);
+        
+        if(key=='y')continue;
+        if(key=='n')return 0;
+        }
+       
     }
     
     
