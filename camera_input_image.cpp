@@ -16,52 +16,9 @@
     of all cameras in the CInstantCameraArray. The grabbed images can then be processed by one or more
     image event handlers. Please note that this is not shown in this example.
 */
+#include "camera_input_image.hpp"
+#include"Angle_estimate_pixel.cpp"
 
-// Include files to use the pylon API.
-#include <pylon/PylonIncludes.h>
-#include <opencv2/opencv.hpp>
-#include<thread>
-#include<mutex>
-#include<time.h>
-#include "defs.h"
-#include <atomic>
-#include <mutex>
-#include <condition_variable>
-#include <signal.h>
-#include <sstream>
-#ifdef PYLON_WIN_BUILD
-#    include <pylon/PylonGUI.h>
-#endif
-static CameraDevices camerasDevices;
-// Namespace for using pylon objects.
-using namespace Pylon;
-float exposure_time = 2000.0; //microsecond
-// Namespace for using cout.
-using namespace std;
-#define NOT_REALTIME 0
-#define realtime 1
-// Number of images to be grabbed.
-static const uint32_t c_countOfImagesToGrab = 10000;
-
-#include"convert.cpp"
-#include"stereomatch.cpp"
-// Limits the amount of cameras used for grabbing.
-// It is important to manage the available bandwidth when grabbing with multiple cameras.
-// This applies, for instance, if two GigE cameras are connected to the same network adapter via a switch.
-// To manage the bandwidth, the GevSCPD interpacket delay parameter and the GevSCFTD transmission delay
-// parameter can be set for each GigE camera device.
-// The "Controlling Packet Transmission Timing with the Interpacket and Frame Transmission Delays on Basler GigE Vision Cameras"
-// Application Notes (AW000649xx000)
-// provide more information about this topic.
-// The bandwidth used by a FireWire camera device can be limited by adjusting the packet size.
-
-std::mutex mtx;
-cv::Mat cameraImage1;
-cv::Mat cameraImage2;
-cv::Mat cameraImages[2];
-string window[2]={"right camera","left camera"};
-cv::Mat left_img;
-cv::Mat right_img;
 void Display()
 {
 
@@ -76,6 +33,9 @@ void Display()
     //while(cnt<1e5)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
     init_stereomatch();
     init_converter();
+    cv::Rect roi_1(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
+    cv::Rect roi_2(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
+    Angle_estimate_init();
     while(cnt<c_countOfImagesToGrab)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
     {
         cnt++;
@@ -92,9 +52,33 @@ void Display()
             }
            
          cv::waitKey(1);
+        
+         }
+       
+        
+        //bin0=frame[0];
+        //bin1=frame[1];
+        //cv::imshow(window[0], bin0);
+        //cv::imshow(window[1], bin1);
+        // if(numberOfBinImage<100){
+        // std::ostringstream oss;
+        // oss<<"./../binary_images/bin"<<numberOfBinImage++<<".png";
+        // bin0=bin0(roi_2);
+        // bin1=bin1(roi_1);
+        //cv::imwrite(oss.str(),bin0);
+        //cv::imwrite(oss.str(),bin1);
+        //printf("writed_binary_image\n");
+        
+        
+        rotation_index=estimate_Angular(rotation_index,frame[1],frame[0]);
+        //int KEY=cv::waitKey(1);
+        //if(KEY=='q')return;
+        if(cnt%50==0){
+            printf("now_estimated_angle %lf\n",angles[rotation_index]);
+            //getDepthImage(frame[1],frame[0],bin1,bin0);
         }
-        if(cnt%10000)cv::Mat res=getDepthImage(frame[1],frame[0]);
-     
+         
+
     }
     printf("display end!\n");
     return ;

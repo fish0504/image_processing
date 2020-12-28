@@ -14,11 +14,11 @@ using namespace cv;
 #define h 600
 #define roi_width 400
 #define roi_height 400
-#define BIN 1
-const std::string savedAngleImagesLeft="./../rotation_estiamate/left/left";
-const std::string savedAngleImagesRight="./../rotation_estiamate/right/right";
-const std::string filepathLeft="./../rotation_estimate/left/left";
-const std::string filepathRight="./../rotation_estimate/right/right";
+#define BIN 0
+const std::string savedAngleImagesLeft="./rotation_estiamate/left/left";
+const std::string savedAngleImagesRight="./rotation_estiamate/right/right";
+const std::string filepathLeft="./rotation_estimate/left/left";
+const std::string filepathRight="./rotation_estimate/right/right";
 vector<std::string>camera={"left","right"};
 
 cv::Rect roi_1(cv::Point2i(0,(w-roi_width)-275),cv::Size(h,roi_width-25));
@@ -28,8 +28,9 @@ vector<cv::Rect>rois={roi_1,roi_2};//left,right
 
 
 vector<Mat>img_stocks(15);
-int search_range[3]={-1,0,1};
+int search_range[10]={-5,-4,-3,-2,-1,0,1,2,3,4};
 double angles[AngleDivision];
 double  caluculate_similarity(Mat& img ,Mat& src,Rect roi);
-int estimateAngular(int now_angular_index,cv::Mat& now_image);
+int estimate_Angular(int now_angular_index,cv::Mat now_image_left,cv::Mat now_image_right);
+void Angle_estimate_init();
 
