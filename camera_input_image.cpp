@@ -18,7 +18,12 @@
 */
 #include "camera_input_image.hpp"
 #include"Angle_estimate_pixel.cpp"
+#include"matplotlib-cpp-starter/matplotlibcpp.h"
 
+namespace plt = matplotlibcpp;
+ vector<int>x;
+ vector<double>y;
+ vector<double>true_value;
 void Display()
 {
 
@@ -31,14 +36,23 @@ void Display()
     int cnt=0;
     printf("display_start!\n");
     //while(cnt<1e5)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
+#if use_boost_stereomatch
     init_stereomatch();
     init_converter();
+#endif
     cv::Rect roi_1(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
     cv::Rect roi_2(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
     Angle_estimate_init();
+    
+    clock_t start2 = clock();
+    clock_t end2;
+    double now_true_angle=0.0;
     while(cnt<c_countOfImagesToGrab)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
     {
+        x.push_back(cnt),y.push_back(angles[rotation_index]);
+        true_value.push_back(now_true_angle);
         cnt++;
+        
          for (size_t i = 0; i<camerasDevices.numberOfCameras; i++){
             camerasDevices.cameraParams[i].imageBuffer.GetMat(frame[i], camerasDevices.cameraParams[i].width,
                                                               camerasDevices.cameraParams[i].height, camerasDevices.cameraParams[i].pixelormat);
@@ -50,8 +64,15 @@ void Display()
                 cv::imshow(window[i], frame[i]);
 
             }
-           
-         cv::waitKey(1);
+        end2=clock();
+        double time2 = static_cast<double>(end2 - start2) / CLOCKS_PER_SEC;
+        start2=clock();
+        now_true_angle+=true_rotationAngle_perSecond*time2;
+        if(now_true_angle>=360.0){
+            now_true_angle-=360;
+            rotation_index=(int)now_true_angle/((360/AngleDivision));
+        }
+        cv::waitKey(1);
         
          }
        
@@ -69,10 +90,11 @@ void Display()
         //cv::imwrite(oss.str(),bin1);
         //printf("writed_binary_image\n");
         
-        
+        //left,right
         rotation_index=estimate_Angular(rotation_index,frame[1],frame[0]);
         //int KEY=cv::waitKey(1);
         //if(KEY=='q')return;
+        
         if(cnt%50==0){
             printf("now_estimated_angle %lf\n",angles[rotation_index]);
             //getDepthImage(frame[1],frame[0],bin1,bin0);
@@ -285,5 +307,10 @@ int main(int argc, char* argv[])
     // Releases all pylon resources. 
     PylonTerminate(); 
 
+    //ploting estimated angles
+    cout<<"matplotlib-cpp sample start"<<endl;
+    plt::plot(x, y,"-b");
+    plt::plot(x,true_value,"-r");
+    plt::show();
     return exitCode;
 }
