@@ -70,7 +70,7 @@ void Display()
         now_true_angle+=true_rotationAngle_perSecond*time2;
         if(now_true_angle>=360.0){
             now_true_angle-=360;
-            rotation_index=(int)now_true_angle/((360/AngleDivision));
+            //rotation_index=(int)now_true_angle/((360/AngleDivision));
         }
         cv::waitKey(1);
         
@@ -310,7 +310,7 @@ int main(int argc, char* argv[])
     //ploting estimated angles
     cout<<"matplotlib-cpp sample start"<<endl;
     plt::plot(x, y,"-b");
-    plt::plot(x,true_value,"-r");
+    //plt::plot(x,true_value,"-r");
     plt::show();
     return exitCode;
 }
