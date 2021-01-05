@@ -41,8 +41,6 @@
 template<typename T,typename Que1,typename Que2,typename Args>
 std::unique_ptr<T> make_unique(Que1& arg1,Que2& arg2,Args& arg3,Args& arg4,Args& arg5)//rvalue 
 {
-	
-
 	//by using forward, T<-T&&
     return std::unique_ptr<T>(new T(arg1,arg2,arg3,arg4,arg5));
 }
@@ -63,7 +61,7 @@ int main()
 	spsc_queue<recvData_t> queRecv; //! received date from communication to image processing
 
 	//spsc_queue<dispData_t> queDisp; //! display the data from image processing to display
-	std::atomic<bool> isSaveImage = false; //! output the images for debug 
+	//std::atomic<bool> isSaveImage = false; //! output the images for debug 
 
 
 	//comDspacePtr:=smart point of the object 

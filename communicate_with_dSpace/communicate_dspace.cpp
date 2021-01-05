@@ -47,9 +47,9 @@ void ComDspace::sendData()
 		printf("sended objinfo {%lf,%lf,%lf}\n",objInfo[0],objInfo[1],objInfo[2]);
 	}
 	//��M���Ƃ߂邽�߁C�����ɑ���
-	boost::asio::ip::udp::endpoint destination(
-		boost::asio::ip::address::from_string("127.0.0.1"), std::stoi(srcPort_));
-	socket.send_to(boost::asio::buffer(objInfo.data(), objInfo.size()), destination);
+	// boost::asio::ip::udp::endpoint destination(
+	// 	boost::asio::ip::address::from_string("127.0.0.1"), std::stoi(srcPort_));
+	// socket.send_to(boost::asio::buffer(objInfo.data(), objInfo.size()), destination);
 	std::cout << "FInish send to dSpace" << std::endl;
 }
 
