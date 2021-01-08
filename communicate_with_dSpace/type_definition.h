@@ -2,8 +2,8 @@
 * @brief �^��`
 */
 #pragma once
-
-using sendData_t = std::array<double, 3>; //data type:=double the number of data=14
+#define num_of_array 10
+using sendData_t = std::array<double, num_of_array>; //data type:=double the number of data=14
 //using sendData_t = std::array<double, 14>;
 //originally position of center gravity (2D)+ lean(1D)+angles of eleven desirable angles(11D)=14
 using recvData_t = std::array<double, 12>; //data type:=double the number of data=12
@@ -19,6 +19,6 @@ struct dispData_t {
 	recvData_t recvData;
 };
 
-constexpr std::size_t capacity = 3; //! spsc_queue�̃T�C�Y
+constexpr std::size_t capacity = 3; //! spsc_queue capacity
 template <typename T>
-using spsc_queue = boost::lockfree::spsc_queue<T, boost::lockfree::capacity<capacity>>; //! �X���b�h�ԒʐM�p�̃��b�N�t���[�L���[�̌^
+using spsc_queue = boost::lockfree::spsc_queue<T, boost::lockfree::capacity<capacity>>; //! 

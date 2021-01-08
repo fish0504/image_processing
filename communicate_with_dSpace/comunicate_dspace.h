@@ -1,48 +1,48 @@
 /**
-* @brief@dSpace‚Æ‚Ì’ÊM(‘—óM)
+* @briefï¿½@dSpaceï¿½Æ‚Ì’ÊM(ï¿½ï¿½ï¿½ï¿½M)
 */
 
 #pragma once
 
 /**
 * @struct comDspace
-* @brief@dSpace‚Æ‚Ì’ÊMƒNƒ‰ƒX
+* @briefï¿½@dSpaceï¿½Æ‚Ì’ÊMï¿½Nï¿½ï¿½ï¿½X
 */
 struct ComDspace{
 
 private:
 	using Udp = boost::asio::ip::udp;
-	spsc_queue<sendData_t> &queSend_; //! ‘—Mƒf[ƒ^‚ÌƒƒbƒNƒtƒŠ[ƒLƒ…[
-	spsc_queue<recvData_t> &queRecv_; //! óMƒf[ƒ^‚ÌƒƒbƒNƒtƒŠ[ƒLƒ…[
-	const std::string destIP_; //! ‘—Mæ(dSpace)IPƒAƒhƒŒƒX
-	const std::string destPort_; //! ‘—Mæ‚Ìƒ|[ƒg
-	const std::string srcPort_; //! ‘—MŒ³‚Ìƒ|[ƒgióM—pj
+	spsc_queue<sendData_t> &queSend_; //! ï¿½ï¿½ï¿½Mï¿½fï¿½[ï¿½^ï¿½Ìƒï¿½ï¿½bï¿½Nï¿½tï¿½ï¿½ï¿½[ï¿½Lï¿½ï¿½ï¿½[
+	spsc_queue<recvData_t> &queRecv_; //! ï¿½ï¿½Mï¿½fï¿½[ï¿½^ï¿½Ìƒï¿½ï¿½bï¿½Nï¿½tï¿½ï¿½ï¿½[ï¿½Lï¿½ï¿½ï¿½[
+	const std::string destIP_; //! ï¿½ï¿½ï¿½Mï¿½ï¿½(dSpace)IPï¿½Aï¿½hï¿½ï¿½ï¿½X
+	const std::string destPort_; //! ï¿½ï¿½ï¿½Mï¿½ï¿½Ìƒ|ï¿½[ï¿½g
+	const std::string srcPort_; //! ï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ìƒ|ï¿½[ï¿½gï¿½iï¿½ï¿½Mï¿½pï¿½j
 
-	bool isFinished_; //! ˆ—‚ğI—¹‚·‚éƒtƒ‰ƒO
+	bool isFinished_; //! ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½O
 
 public:
 	/**
-	* @brief ƒRƒ“ƒXƒgƒ‰ƒNƒ^
-	* @param[in] queSend ‘—Mƒf[ƒ^
-	* @param[out] queRecv óMƒf[ƒ^
-	* @param[in] destIP ‘—Mæ(dSpace)IPƒAƒhƒŒƒX
-	* @param[in] destPort ‘—Mæ(dSpace)ƒ|[ƒg
-	* @param[in] srcPort óM(PC)ƒ|[ƒg
+	* @brief ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
+	* @param[in] queSend ï¿½ï¿½ï¿½Mï¿½fï¿½[ï¿½^
+	* @param[out] queRecv ï¿½ï¿½Mï¿½fï¿½[ï¿½^
+	* @param[in] destIP 
+	* @param[in] destPort ï¿½ï¿½ï¿½Mï¿½ï¿½(dSpace)ï¿½|ï¿½[ï¿½g
+	* @param[in] srcPort ï¿½ï¿½M(PC)ï¿½|ï¿½[ï¿½g
 	*/
 	ComDspace(spsc_queue<sendData_t> &queSend, spsc_queue<recvData_t> &queRecv, const std::string &destIP, const std::string &destPort, const std::string &srcPort);
 
 	/**
-	* @brief dspace‚Öƒf[ƒ^‘—M
+	* @brief dspaceï¿½Öƒfï¿½[ï¿½^ï¿½ï¿½ï¿½M
 	*/
 	void sendData();
 
 	/**
-	* @brief dspace‚©‚çƒf[ƒ^óM
+	* @brief dspaceï¿½ï¿½ï¿½ï¿½fï¿½[ï¿½^ï¿½ï¿½M
 	*/
 	void recieveData();
 
 	/**
-	* @brief@ˆ—‚ğI—¹‚·‚é
+	* @briefï¿½@ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	*/
 	int finishProc() {
 		isFinished_ = true;
@@ -50,7 +50,7 @@ public:
 	}
 
 	/**
-	* @brief@I—¹ƒtƒ‰ƒO‚ÌŠm”F
+	* @briefï¿½@ï¿½Iï¿½ï¿½ï¿½tï¿½ï¿½ï¿½Oï¿½ÌŠmï¿½F
 	*/
 	bool isFinishProc() {
 		return isFinished_;
