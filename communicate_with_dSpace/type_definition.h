@@ -2,7 +2,7 @@
 * @brief �^��`
 */
 #pragma once
-#define num_of_array 10
+#define num_of_array 14
 using sendData_t = std::array<double, num_of_array>; //data type:=double the number of data=14
 //using sendData_t = std::array<double, 14>;
 //originally position of center gravity (2D)+ lean(1D)+angles of eleven desirable angles(11D)=14

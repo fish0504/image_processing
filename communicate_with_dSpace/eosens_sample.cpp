@@ -51,6 +51,8 @@ int main()
 	//�萔��
 	//dSpace�Ƃ̒ʐM
 	const std::string destIP = "10.1.196.179";
+	//const std::string destIP = "192.168.140.7";
+
 	const std::string destPort = "50006";
 	const std::string srcPort = "52001";
 	//�摜����
