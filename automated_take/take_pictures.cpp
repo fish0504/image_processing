@@ -36,7 +36,7 @@ using namespace std;
 
 // Number of images to be grabbed.
 static const uint32_t c_countOfImagesToGrab = 5000;
-#define endOfPictures 64
+#define endOfPictures 96
 // Limits the amount of cameras used for grabbing.
 // It is important to manage the available bandwidth when grabbing with multiple cameras.
 // This applies, for instance, if two GigE cameras are connected to the same network adapter via a switch.
@@ -47,9 +47,9 @@ static const uint32_t c_countOfImagesToGrab = 5000;
 // provide more information about this topic.
 // The bandwidth used by a FireWire camera device can be limited by adjusting the packet size.
 static const size_t c_maxCamerasToUse = 2;
-const string saving_path_left="./rotation_estimate/biright/right";
-const string saving_path_right="./rotation_estimate/marked_left/left";
-constexpr int TIME_TO_SLEEP = 3500;
+const string saving_path_left="../../resources/rotation_estimate/left";
+const string saving_path_right="../../resources/rotation_estimate/left";
+constexpr int TIME_TO_SLEEP = 3850;
 
 //This program take the pictures for calibration or rotation estimation
 int main(int argc, char* argv[])
@@ -148,6 +148,7 @@ int main(int argc, char* argv[])
             }
             else if (cameraContextValue == 1)
             {
+
                 oss<<saving_path_right<<now_angle<<".png";
                 //cv::imshow(oss.str(), openCvImage);
                 //cv::imwrite("right_img.png", openCvImage);
