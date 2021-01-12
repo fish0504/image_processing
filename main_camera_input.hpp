@@ -1,10 +1,19 @@
+#include <pylon/PylonIncludes.h>
+#include <opencv2/opencv.hpp>
+#include<thread>
+#include<mutex>
+#include<time.h>
+#include "defs.h"
 #include <atomic>
 #include <mutex>
 #include <condition_variable>
-#include <thread>
 #include <signal.h>
 #include <sstream>
-#include"defs.h"
+#ifdef PYLON_WIN_BUILD
+#    include <pylon/PylonGUI.h>
+#endif
+static CameraDevices camerasDevices;
+
 #include"stereomatch.cpp"
 #include"Angle_estimate_pixel.cpp"
 
@@ -16,13 +25,17 @@ namespace plt = matplotlibcpp;
  std::vector<double>y;
  std::vector<double>true_value;
 
-const std::string window[2]={"right","left"};
-
-
+std::mutex mtx;
+cv::Mat cameraImage1;
+cv::Mat cameraImage2;
+cv::Mat cameraImages[2];
+const string window[2]={"right camera","left camera"};
+cv::Mat left_img;
+cv::Mat right_img;
 
 // whether or not to show captured frames
 bool enableDisplay = false;
-const int c_countOfImagesToGrab=5000;
+static const uint32_t c_countOfImagesToGrab = 10000;
 // exposure time default
 float exposure_time = 2000.0; //microsecond
 
@@ -43,13 +56,10 @@ std::thread display_thread;
 
 //yolo dnn object
 //object for holding camera devices and configurations
-static CameraDevices camerasDevices;
 
 //function declarations
-void StreamingThread();
-void DisplayThread();
 
 int rotation_index=0;
-#define realtime_display 0
-#define use_boost_stereomatch 0
-#define NOT_REALTIME 1
+#define realtime_display 1
+#define use_boost_stereomatch 1
+#define NOT_REALTIME 0

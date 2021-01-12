@@ -70,6 +70,7 @@ public:
         }else{
             //the color image is in BayerBG8, need to convert ot RGB for processing and display
             cv::cuda::cvtColor(inputMat, outputMat, cv::COLOR_BayerBG2RGB, 0, stream);
+            cv::cuda::cvtColor(inputMat, outputMat, cv::COLOR_BayerBG2GRAY, 0, stream);
 
 
             //cv::cvtColor(srcMat,srcMat, cv::COLOR_BayerBG2RGB,0);

@@ -62,7 +62,7 @@ void Display()
         end2=clock();
         double time2 = static_cast<double>(end2 - start2) / CLOCKS_PER_SEC;
         start2=clock();
-        //if(frame[0].empty() || frame[1].empty())continue;
+        if(frame[0].empty() || frame[1].empty())continue;
         // now_true_angle+=true_rotationAngle_perSecond*time2;
         // if(now_true_angle>=360.0){
         //     now_true_angle-=360;
@@ -76,12 +76,14 @@ void Display()
        
         
         //left,right
-        rotation_index=estimate_Angular(rotation_index,frame[1],frame[0]);
+        //rotation_index=estimate_Angular(rotation_index,frame[1],frame[0]);
        
-        
-        if(cnt%50==0){
+        if(cnt%10000){
+            std::thread DEX(getDepthImage,frame[1],frame[0]);
+            DEX.detach();
+        }
+        else if(cnt%50==0){
             printf("now_estimated_angle %lf\n",angles[rotation_index]);
-            getDepthImage(frame[1],frame[0]);
         }
          
 

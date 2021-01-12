@@ -104,14 +104,14 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
     }
     img1=img1(roi);
     img2=img2(roi);
-    
+    printf("here!");
     Size img_size = img1.size();
     Rect roi1,roi2;
     Mat Q;
     
-    //printf("now2\n");
+    printf("now2\n");
     cv::stereoRectify( M1, D1, M2, D2,img_size , R, T, R1, R2, P1, P2, Q, CALIB_ZERO_DISPARITY, -1,img_size, &roi1, &roi2 );
-    //printf("now3\n");
+    printf("now3\n");
     Mat map11, map12, map21, map22;
     cv::initUndistortRectifyMap(M1, D1, R1, P1, img_size, CV_16SC2, map11, map12);
     cv::initUndistortRectifyMap(M2, D2, R2, P2, img_size, CV_16SC2, map21, map22);
@@ -188,33 +188,9 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
         disp.convertTo(disp8, CV_8U);
 
     Mat disp8_3c;
-    //printf("now4\n");
-    // if (color_display)
-    //     cv::applyColorMap(disp8, disp8_3c, COLORMAP_TURBO);
-
-    // if(!disparity_filename.empty())
-    //     //imwrite(disparity_filename, color_display ? disp8_3c : disp8);
-
-    // if(!point_cloud_filename.empty())
-    // {
-    //     printf("storing the point cloud...");
-    //     fflush(stdout);
-    //     Mat xyz;
-    //     Mat floatDisp;
-    //     disp.convertTo(floatDisp, CV_32F, 1.0f / disparity_multiplier);
-    //     reprojectImageTo3D(floatDisp, xyz, Q, true);
-    //     saveXYZ(point_cloud_filename.c_str(), xyz);
-    //     printf("\n");
-    // }
-
+    
     if( !no_display )
     {
-        
-
-        // namedWindow("left", cv::WINDOW_NORMAL);
-        // imshow("left", img1);
-        // namedWindow("right", cv::WINDOW_NORMAL);
-        // imshow("right", img2);
         
         imshow(disp_name, color_display ? disp8_3c : disp8);
         //convertToPython(disp8);
