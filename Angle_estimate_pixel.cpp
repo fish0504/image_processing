@@ -1,5 +1,10 @@
 #include"Angle_estimate_pixel.hpp"
 //calculate similarity by comparing pixels
+
+
+
+
+
 double  caluculate_similarity(Mat& img ,Mat& src,Rect roi){
     
     int width=img.cols;
@@ -38,10 +43,7 @@ int estimate_Angular(int now_angular_index,cv::Mat now_image_left,cv::Mat now_im
         //ostringstream ostr;
         
         //input the pictures taken now
-        // if(l==0)ostr << filepathLeft << angles[now_angular_index] << ".png";
-        // else{
-        //     ostr << filepathRight << angles[now_angular_index] << ".png";
-        // }
+        
         // cv::Mat imgl;
         // imgl=cv::imread(ostr.str(),0);
         cv::Mat imgl;
@@ -116,7 +118,7 @@ int estimate_Angular(int now_angular_index,cv::Mat now_image_left,cv::Mat now_im
         if(key=='d')continue;
 #endif
 
-#if write
+#if 0
         std::ostringstream oss;
         oss<<"./bina_angles/bin_ang"<<angles[i]<<".png";
         cv::imwrite(oss.str(),imgl);

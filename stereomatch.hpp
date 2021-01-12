@@ -18,8 +18,11 @@
 
 #define sad 5
 #define num 32     //disparity
-#define w 800
-#define h 600
+// #define w 800
+// #define h 600
+const int w=800;
+const int h=600;
+    
 #define roi_width 400
 #define roi_height 400
 using namespace cv;
@@ -45,5 +48,9 @@ Ptr<StereoBM> bm ;
 Ptr<StereoSGBM> sgbm;
 static void saveXYZ(const char* filename, const Mat& mat);
 bool init_stereomatch();
-cv::Mat getDepthImage();//cv::Mat img1,cv::Mat img2);
-std::string disp_name;
+cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2);
+ std::string disp_name;
+const std::string intrinsic_filename_left="./cameraParams/r2_intrinsic.xml";
+const std::string intrinsic_filename_right="./cameraParams/r2_intrinsic.xml";
+const std::string extrinsic_filename="./cameraParams/camera.xml";
+using namespace std;

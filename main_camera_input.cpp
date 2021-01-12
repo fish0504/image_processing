@@ -16,14 +16,9 @@
     of all cameras in the CInstantCameraArray. The grabbed images can then be processed by one or more
     image event handlers. Please note that this is not shown in this example.
 */
-#include "camera_input_image.hpp"
-#include"Angle_estimate_pixel.cpp"
-#include"matplotlib-cpp-starter/matplotlibcpp.h"
+#include "main_camera_input.hpp"
 
-namespace plt = matplotlibcpp;
- vector<int>x;
- vector<double>y;
- vector<double>true_value;
+
 void Display()
 {
 
@@ -38,7 +33,7 @@ void Display()
     //while(cnt<1e5)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
 #if use_boost_stereomatch
     init_stereomatch();
-    init_converter();
+    //init_converter();
 #endif
     cv::Rect roi_1(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
     cv::Rect roi_2(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
@@ -62,42 +57,31 @@ void Display()
                 cv::rotate(frame[i],frame[i],ROTATE_90_COUNTERCLOCKWISE);
                
                 cv::imshow(window[i], frame[i]);
-
+                cv::waitKey(1);
             }
         end2=clock();
         double time2 = static_cast<double>(end2 - start2) / CLOCKS_PER_SEC;
         start2=clock();
-        now_true_angle+=true_rotationAngle_perSecond*time2;
-        if(now_true_angle>=360.0){
-            now_true_angle-=360;
-            //rotation_index=(int)now_true_angle/((360/AngleDivision));
-        }
+        //if(frame[0].empty() || frame[1].empty())continue;
+        // now_true_angle+=true_rotationAngle_perSecond*time2;
+        // if(now_true_angle>=360.0){
+        //     now_true_angle-=360;
+        //     //rotation_index=(int)now_true_angle/((360/AngleDivision));
+        // }
         cv::waitKey(1);
         
-         }
+        }
        
         
-        //bin0=frame[0];
-        //bin1=frame[1];
-        //cv::imshow(window[0], bin0);
-        //cv::imshow(window[1], bin1);
-        // if(numberOfBinImage<100){
-        // std::ostringstream oss;
-        // oss<<"./../binary_images/bin"<<numberOfBinImage++<<".png";
-        // bin0=bin0(roi_2);
-        // bin1=bin1(roi_1);
-        //cv::imwrite(oss.str(),bin0);
-        //cv::imwrite(oss.str(),bin1);
-        //printf("writed_binary_image\n");
+       
         
         //left,right
         rotation_index=estimate_Angular(rotation_index,frame[1],frame[0]);
-        //int KEY=cv::waitKey(1);
-        //if(KEY=='q')return;
+       
         
         if(cnt%50==0){
             printf("now_estimated_angle %lf\n",angles[rotation_index]);
-            //getDepthImage(frame[1],frame[0],bin1,bin0);
+            getDepthImage(frame[1],frame[0]);
         }
          
 
@@ -130,7 +114,7 @@ int main(int argc, char* argv[])
         }
 
         // Create an array of instant cameras for the found devices and avoid exceeding a maximum number of devices.
-       camerasDevices.numberOfCameras= std::min( devices.size(), c_maxCamerasToUse);
+        camerasDevices.numberOfCameras= std::min( devices.size(), c_maxCamerasToUse);
         camerasDevices.cameras.Initialize(camerasDevices.numberOfCameras);
 
         // Create and attach all Pylon Devices.
@@ -198,7 +182,7 @@ int main(int argc, char* argv[])
         cv::namedWindow("camera1");//CV_WINDOW_NORMAL); 
         cv::namedWindow("camera2");//,CV_WINDOW_NORMAL); 
         #endif
-        printf("started!\n");
+        printf("cameras input started!\n");
         for( uint32_t i = 0; i < c_countOfImagesToGrab && camerasDevices.cameras.IsGrabbing(); ++i)
         { 
             camerasDevices.cameras.RetrieveResult( 5000, ptrGrabResult, TimeoutHandling_ThrowException);
@@ -208,7 +192,7 @@ int main(int argc, char* argv[])
             //set the image buffer for later use
             camerasDevices.cameraParams[cameraContextValue].imageBuffer.SetBuffer(pImageBuffer, ptrGrabResult->GetBufferSize());
             camerasDevices.frameCount[cameraContextValue]++;
-            //mtx.unlock();
+
             // When the cameras in the array are created the camera context value
             // is set to the index of the camera in the array.
             // The camera context is a user settable value.
@@ -220,19 +204,7 @@ int main(int argc, char* argv[])
             
             // Create an OpenCV image
             
-            // Create an OpenCV image out of pylon image
-            //printf("cameraContextValue : %ld\n",cameraContextValue);
-            //cv::Mat openCvImage;//me
-            // openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t *)pylonImage.GetBuffer());//me
-            // if (cameraContextValue == 0)
-            // {
-            //     cameraImages[0]=openCvImage;
-            // }
-            // else if (cameraContextValue == 1)
-            // {
-            //     cameraImages[1]=openCvImage;
-            // }
-            //cameraImages[cameraContextValue]=openCvImage;
+           
             #if NOT_REALTIME
             if (cameraContextValue == 0)
             {
@@ -242,7 +214,7 @@ int main(int argc, char* argv[])
             }
             else if (cameraContextValue == 1)
             {
-                cameraImages[1]=openCvImage;
+                //cameraImages[1]=openCvImage;
                 cv::imshow("camera2", openCvImage);
                 //cv::imwrite("right_img.png", openCvImage);
 
@@ -250,7 +222,7 @@ int main(int argc, char* argv[])
             cv::waitKey(1);
             #endif
             //cameraImages[cameraContextValue]=openCvImage;
-            #if realtime
+            #if realtime_display
             if(!display_started && i>=500){
             std::thread display(Display);
             display.detach();

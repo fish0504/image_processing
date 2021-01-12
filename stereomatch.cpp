@@ -21,11 +21,7 @@ static void saveXYZ(const char* filename, const Mat& mat)
 
 bool init_stereomatch()
 {
-std::string intrinsic_filename_left="l2_intrinsic.xml";
-std::string intrinsic_filename_right="r2_intrinsic.xml";
-std::string extrinsic_filename="extrinsic2.xml";
-std::string img1_filename="./calib_img2/left/matching_sample_left.png";
-std::string img2_filename="./calib_img2/right/matching_sample_right.png";
+
 bm = StereoBM::create(16,9);
 sgbm = StereoSGBM::create(0,16,3);
     if( !intrinsic_filename_left.empty() )
@@ -106,8 +102,8 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
         cv::resize(img2, temp2, Size(), scale, scale, method);
         img2 = temp2;
     }
-    //img1=img1(roi);
-    //img2=img2(roi);
+    img1=img1(roi);
+    img2=img2(roi);
     
     Size img_size = img1.size();
     Rect roi1,roi2;
@@ -221,7 +217,7 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
         // imshow("right", img2);
         
         imshow(disp_name, color_display ? disp8_3c : disp8);
-        convertToPython(disp8);
+        //convertToPython(disp8);
         //imwrite("./disp_results/"+save_name+".png",disp8);
         //printf("depth:\nwidth %d height %d",disp8.cols,disp8.rows);
         //printf("press ESC key or CTRL+C to close...");
