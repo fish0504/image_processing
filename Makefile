@@ -17,13 +17,14 @@ LIBS = -lopencv_core \
 	-lboost_system \
 	-lboost_thread \
 	-lboost_signals \
-	-lpython2.7 \
-	-lboost_numpy3-py36 \
-	-lboost_python3-py36 \
+	-lboost_numpy3 \
+	-lboost_python3 \
 	-lpython3.6 \
 	-lstdc++ \
 	-pthread \
 	-std=c++11 
+	
+	#-lpython2.7 -lpython3.5
 INCLUDE =   -I/usr/local/include/opencv4 \
 			-I/opt/pylon/include \
 			-I/usr/include/python3.6m
