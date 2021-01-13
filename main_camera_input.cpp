@@ -282,9 +282,11 @@ int main(int argc, char* argv[])
     PylonTerminate(); 
 
     //ploting estimated angles
+#if output_angles
     cout<<"matplotlib-cpp sample start"<<endl;
     plt::plot(x, y,"-b");
     //plt::plot(x,true_value,"-r");
     plt::show();
+#endif
     return exitCode;
 }

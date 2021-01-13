@@ -16,11 +16,13 @@ static CameraDevices camerasDevices;
 
 #include"stereomatch.cpp"
 #include"Angle_estimate_pixel.cpp"
+#define output_angles 0
 
-//#include"convert.hpp"
+#if output_angles
 #include"matplotlib-cpp-starter/matplotlibcpp.h"
-
 namespace plt = matplotlibcpp;
+ 
+#endif
  std::vector<int>x;
  std::vector<double>y;
  std::vector<double>true_value;

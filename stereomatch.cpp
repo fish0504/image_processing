@@ -193,7 +193,7 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
     {
         
         imshow(disp_name, color_display ? disp8_3c : disp8);
-        //convertToPython(disp8);
+        convertToPython(disp8);
         //imwrite("./disp_results/"+save_name+".png",disp8);
         //printf("depth:\nwidth %d height %d",disp8.cols,disp8.rows);
         //printf("press ESC key or CTRL+C to close...");

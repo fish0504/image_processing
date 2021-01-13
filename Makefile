@@ -2,7 +2,7 @@
 CC = g++
 # インクルードファイル等
 CFLAGS = -lm
-LDFLAGS = -L/usr/local/lib -L/opt/pylon/lib #-Wl,-E
+LDFLAGS = -L/usr/local/lib -L/opt/pylon/lib -L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu#-Wl,-E
 LIBS = -lopencv_core \
 	-lopencv_cudaimgproc\
 	-lopencv_highgui\
@@ -18,15 +18,23 @@ LIBS = -lopencv_core \
 	-lboost_thread \
 	-lboost_signals \
 	-lpython2.7 \
+	-lboost_numpy3-py36 \
+	-lboost_python3-py36 \
+	-lpython3.6 \
 	-lstdc++ \
 	-pthread \
 	-std=c++11 
 INCLUDE =   -I/usr/local/include/opencv4 \
-			-I/opt/pylon/include 
+			-I/opt/pylon/include \
+			-I/usr/include/python3.6m
+
 # 実行ファイル名
-TARGETS = main
+#TARGETS = main
+TARGETS = convert_with_main
+
 
 # compile
-main: main_camera_input.cpp
+#main: main_camera_input.cpp
+convert_with_main: main_camera_input.cpp
 	$(CC) main_camera_input.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
 # make clean

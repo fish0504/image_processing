@@ -15,3 +15,4 @@ std::string type2str(int type);
 bool convertToPython(cv::Mat depth);  //execute convertion c++ to python
 void init_converter();              //init and prepare
 std::string script;
+

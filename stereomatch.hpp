@@ -16,6 +16,8 @@
 #include <stdio.h>
 #include <sstream>
 
+#include"convert.cpp"
+
 #define sad 5
 #define num 32     //disparity
 // #define w 800
