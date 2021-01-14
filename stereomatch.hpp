@@ -20,6 +20,7 @@
 
 #define sad 5
 #define num 32     //disparity
+#define test_convert 1
 // #define w 800
 // #define h 600
 const int w=800;

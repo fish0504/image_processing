@@ -33,7 +33,7 @@ void Display()
     //while(cnt<1e5)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
 #if use_boost_stereomatch
     init_stereomatch();
-    //init_converter();
+    init_converter();
 #endif
     cv::Rect roi_1(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
     cv::Rect roi_2(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
@@ -78,9 +78,10 @@ void Display()
         //left,right
         //rotation_index=estimate_Angular(rotation_index,frame[1],frame[0]);
        
-        if(cnt%10000){
-            std::thread DEX(getDepthImage,frame[1],frame[0]);
-            DEX.detach();
+        if(cnt%1000==0){
+            cv::Mat tmp=getDepthImage(frame[1],frame[0]);
+            //std::thread DEX(getDepthImage,frame[1],frame[0]);
+            //DEX.detach();
         }
         else if(cnt%50==0){
             printf("now_estimated_angle %lf\n",angles[rotation_index]);

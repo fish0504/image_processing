@@ -17,12 +17,12 @@ LIBS = -lopencv_core \
 	-lboost_system \
 	-lboost_thread \
 	-lboost_signals \
-	-lboost_numpy3 \
-	-lboost_python3 \
+	-lboost_numpy3-py36 \
+	-lboost_python3-py36 \
 	-lpython3.6 \
 	-lstdc++ \
 	-pthread \
-	-std=c++11 
+	
 	
 	#-lpython2.7 -lpython3.5
 INCLUDE =   -I/usr/local/include/opencv4 \
@@ -31,11 +31,11 @@ INCLUDE =   -I/usr/local/include/opencv4 \
 
 # 実行ファイル名
 #TARGETS = main
-TARGETS = convert_with_main
+TARGETS = test_convertion
 
 
 # compile
 #main: main_camera_input.cpp
-convert_with_main: main_camera_input.cpp
+test_convertion: main_camera_input.cpp
 	$(CC) main_camera_input.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
 # make clean

@@ -21,7 +21,9 @@ static void saveXYZ(const char* filename, const Mat& mat)
 
 bool init_stereomatch()
 {
-
+#if test_convert
+    return true;
+#endif
 bm = StereoBM::create(16,9);
 sgbm = StereoSGBM::create(0,16,3);
     if( !intrinsic_filename_left.empty() )
@@ -77,7 +79,12 @@ sgbm = StereoSGBM::create(0,16,3);
 cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
    
     int color_mode = alg == STEREO_BM ? 0 : -1;
-    
+#if test_convert
+    cv::Mat sample;
+    sample=imread("disp.png",0);
+    convertToPython(sample);
+    return sample;
+#endif
     //Mat img1 = imread(img1_filename, color_mode);
     //Mat img2 = imread(img2_filename, color_mode);
     if (img1.empty())

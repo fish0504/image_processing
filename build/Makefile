@@ -1,28 +1,37 @@
-# �~B��~C��~C~Q�~B��~C��~A��~L~G��~Z
+#~Q�~B��~C��~A��~L~G��~Z
 CC = g++
 # �~B��~C��~B��~C��~C��~C~I�~C~U�~B��~B��~C���~I
 CFLAGS = -lm
-LDFLAGS = -L/root/Workspace/opencv/lib -L/root/Workspace/pylon/lib -L/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu#-Wl,-E
-LIBS = -lopencv_core \
-        -lopencv_cudaimgproc\
-        -lopencv_highgui\
-        -lopencv_imgcodecs\
-        -lopencv_imgproc\
-        -lopencv_calib3d \
-        -lpylonbase \
-        -lpylonutility \
-        -lGenApi_gcc_v3_1_Basler_pylon \
-        -lGCBase_gcc_v3_1_Basler_pylon \
-        -lboost_atomic \
-        -lboost_system \
-        -lboost_thread \
-        -lboost_signals \
-        -lboost_numpy3 \
-        -lboost_python3 \
-        -lpython3.5 \
-        -lstdc++ \
-        -pthread \
-        -std=c++11
+LDFLAGS =-L /root/Workspace/opencv/lib  -std=gnu++11  -lpthread
+LIBS =  -L /root/Workspace/opencv/lib -lopencv_core \
+        -L /root/Workspace/opencv/lib -lopencv_highgui\
+        -L /root/Workspace/opencv/lib -lopencv_cudaarithm\
+        -L /root/Workspace/opencv/lib -lopencv_cudafilters\
+        -L /root/Workspace/opencv/lib -lopencv_cudaimgproc\
+        -L /root/Workspace/x86_64-linux-gnu -ljasper\
+        -L /root/Workspace/x86_64-linux-gnu -ljbig\
+        -L /root/Workspace/x86_64-linux-gnu -ltiff \
+        -L /root/Workspace/opencv/lib -lopencv_imgcodecs\
+        -L /root/Workspace/x86_64-linux-gnu -lpng16\
+        -L /root/Workspace/opencv/lib -lopencv_imgproc\
+        -L /root/Workspace/opencv/lib -lopencv_features2d\
+        -L /root/Workspace/opencv/lib -lopencv_flann\
+        -L /root/Workspace/opencv/lib -lopencv_calib3d \
+        -L /root/Workspace/pylon/lib -lLog_gcc_v3_1_Basler_pylon\
+        -L /root/Workspace/pylon/lib -Wl,-E -lpylonbase \
+        -L /root/Workspace/pylon/lib -Wl,-E -lpylonutility \
+        -L /root/Workspace/pylon/lib -Wl,-E -lNodeMapData_gcc_v3_1_Basler_pylon\
+        -L /root/Workspace/pylon/lib -lMathParser_gcc_v3_1_Basler_pylon\
+        -L /root/Workspace/pylon/lib -lXmlParser_gcc_v3_1_Basler_pylon\
+        -L /root/Workspace/pylon/lib -Wl,-E -lGenApi_gcc_v3_1_Basler_pylon \
+        -L /root/Workspace/pylon/lib -Wl,-E -lGCBase_gcc_v3_1_Basler_pylon \
+        -L /root/Workspace/opencv/lib -lboost_atomic \
+        -L /root/Workspace/opencv/lib -lboost_system \
+        -L /root/Workspace/opencv/lib -lboost_thread \
+        -L /root/Workspace/opencv/lib -lboost_signals \
+        -L /root/Workspace/opencv/lib -lboost_numpy3 \
+        -L /root/Workspace/opencv/lib -lboost_python3 \
+        -L /usr/lib/python3.5/config-3.5m-x86_64-linux-gnu -lpython3.5
 
         #-lpython2.7 -lpython3.5
 INCLUDE =   -I/root/Workspace/opencv/opencv4 \

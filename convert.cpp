@@ -1,4 +1,5 @@
 #include "convert.hpp"
+//const std::string pyfile="~/dex-net-withoutdocker/gqcnn/examples/policy.py";
 std::string type2str(int type) { 
     std::string r; 
 
@@ -27,6 +28,8 @@ void init_converter(){
     Py_Initialize();
     //Pythonスクリプトの読み込み
     std::ifstream ifs("mat_numpy.py");
+    //std::ifstream ifs(pyfile);
+
     script=std::string((std::istreambuf_iterator<char>(ifs)),
                         std::istreambuf_iterator<char>());
 
