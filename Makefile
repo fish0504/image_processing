@@ -1,8 +1,9 @@
+
 # コンパイラの指定
 CC = g++
 # インクルードファイル等
 CFLAGS = -lm
-LDFLAGS = -L/usr/local/lib -L/opt/pylon/lib -L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu#-Wl,-E
+LDFLAGS = -L/usr/local/lib -L/opt/pylon/lib -L /usr/lib/x86_64-linux-gnu -L/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu#-L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu#-Wl,-E
 LIBS = -lopencv_core \
 	-lopencv_cudaimgproc\
 	-lopencv_highgui\
@@ -17,9 +18,9 @@ LIBS = -lopencv_core \
 	-lboost_system \
 	-lboost_thread \
 	-lboost_signals \
-	-lboost_numpy3-py36 \
-	-lboost_python3-py36 \
-	-lpython3.6 \
+	-lboost_numpy3\
+	-lboost_python3\
+	-lpython3.5\
 	-lstdc++ \
 	-pthread \
 	
@@ -27,15 +28,17 @@ LIBS = -lopencv_core \
 	#-lpython2.7 -lpython3.5
 INCLUDE =   -I/usr/local/include/opencv4 \
 			-I/opt/pylon/include \
-			-I/usr/include/python3.6m
+			-I/usr/include/python3.5m
+			#-I/usr/include/python3.6m
 
 # 実行ファイル名
 #TARGETS = main
-TARGETS = test_convertion
-
-
+TARGETS = test_dexnet
+#clean:;         rm -f *.o *~ $(PROGRAM)
+#clean:
+	#rm $(TARGETS)
 # compile
 #main: main_camera_input.cpp
-test_convertion: main_camera_input.cpp
+test_dexnet: main_camera_input.cpp
 	$(CC) main_camera_input.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
 # make clean

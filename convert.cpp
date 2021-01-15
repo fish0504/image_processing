@@ -1,5 +1,4 @@
 #include "convert.hpp"
-//const std::string pyfile="~/dex-net-withoutdocker/gqcnn/examples/policy.py";
 std::string type2str(int type) { 
     std::string r; 
 
@@ -51,7 +50,7 @@ bool convertToPython(cv::Mat depth){
     //名前空間の確保
     auto main_ns = boost::python::import("__main__").attr("__dict__");
     
-    
+    printf("now2\n");
     //cv::Mat depth;
     //depth=cv::imread("../disp_result.png",0);
    
@@ -76,13 +75,15 @@ bool convertToPython(cv::Mat depth){
     
     //mat_numpy.mulの実行
     boost::python::exec(script.c_str(), main_ns);
-    auto func = main_ns["mul"];
+    auto func = main_ns["dex-net"];
     //func(A);
     
 
     //結果の受け取り
     //stl_input_iteratorを使ってタプル全要素を受け取る
-    auto pyresult_numpy = func(A);
+    printf("now3\n");
+
+    func(A);
 #if CONFIRM_IMAGES
         boost::python::stl_input_iterator<np::ndarray> begin(pyresult_numpy), end;
         std::list<np::ndarray> pyresult_list(begin, end);
@@ -108,6 +109,8 @@ bool convertToPython(cv::Mat depth){
         cv::imshow("returned_disp",received);
         cv::waitKey(-1);
 #endif
+        printf("now4\n");
+
         //std::cout << p[0] << ',' << p[1] << ',' << p[2] << ',' << p[MAX_X * MAX_X - 1] << std::endl;
     
     return true;

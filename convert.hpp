@@ -15,4 +15,5 @@ std::string type2str(int type);
 bool convertToPython(cv::Mat depth);  //execute convertion c++ to python
 void init_converter();              //init and prepare
 std::string script;
+const std::string pyfile="/home/kawahara/dex-net-withoutdocker/gqcnn/examples/policy.py";
 
