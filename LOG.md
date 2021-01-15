@@ -74,3 +74,11 @@ UDPとdPSACEについて調べまくって相談した
 * 現在、取得したdepth画像を変換し。mat_numpy.pyを呼び出しているが、呼び出すファイルをmat_numpy.py->examples/policy.pyに変更する
 * examples/policy.pyで実行時引数でモデルやcfgを指定している部分を定数にする(指定がなくても画像だけで呼び出せるようにする)
 
+## 0115
+
+### やったこと
+* dex-netをboost-pythonを使って関数として呼び出すために、
+  * pyenvをつかってdex-netの依存ライブラリをインストール  (pyenvはpy3.6/Pipfileで　$pipenv shell　で起動する)
+  * パスの変更  
+  をおこなった
+### 次やること 
