@@ -26,8 +26,8 @@ void init_converter(){
     //Python、numpyモジュールの初期化
     Py_Initialize();
     //Pythonスクリプトの読み込み
-    std::ifstream ifs("mat_numpy.py");
-    //std::ifstream ifs(pyfile);
+    //std::ifstream ifs("mat_numpy.py");
+    std::ifstream ifs(pyfile);
 
     script=std::string((std::istreambuf_iterator<char>(ifs)),
                         std::istreambuf_iterator<char>());
@@ -82,8 +82,8 @@ bool convertToPython(cv::Mat depth){
     //結果の受け取り
     //stl_input_iteratorを使ってタプル全要素を受け取る
     printf("now3\n");
-
-    func(A);
+    func();
+    //auto ret=func(A);
 #if CONFIRM_IMAGES
         boost::python::stl_input_iterator<np::ndarray> begin(pyresult_numpy), end;
         std::list<np::ndarray> pyresult_list(begin, end);
