@@ -30,13 +30,12 @@ void Display()
     cv::Mat frame[c_maxCamerasToUse];
     int cnt=0;
     printf("display_start!\n");
-    //while(cnt<1e5)//!threads_exit.wait_for(lock, pause, [](){return !threads_run;}))
 #if use_boost_stereomatch
     init_stereomatch();
     init_converter();
 #endif
-    cv::Rect roi_1(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
-    cv::Rect roi_2(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
+    //cv::Rect roi_1(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
+    //cv::Rect roi_2(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
     Angle_estimate_init();
     
     clock_t start2 = clock();
@@ -76,9 +75,9 @@ void Display()
        
         
         //left,right
-        //rotation_index=estimate_Angular(rotation_index,frame[1],frame[0]);
+        rotation_index=estimate_Angular(rotation_index,frame[1],frame[0]);
        
-        if(cnt%1000==0){
+        if(cnt%300==0){
             cv::Mat tmp=getDepthImage(frame[1],frame[0]);
             //std::thread DEX(getDepthImage,frame[1],frame[0]);
             //DEX.detach();

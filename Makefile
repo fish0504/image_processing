@@ -33,12 +33,12 @@ INCLUDE =   -I/usr/local/include/opencv4 \
 
 # 実行ファイル名
 #TARGETS = main
-TARGETS = test_dexnet
+TARGETS = dexnet
 #clean:;         rm -f *.o *~ $(PROGRAM)
 #clean:
 	#rm $(TARGETS)
 # compile
 #main: main_camera_input.cpp
-test_dexnet: main_camera_input.cpp
+dexnet: main_camera_input.cpp
 	$(CC) main_camera_input.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
 # make clean

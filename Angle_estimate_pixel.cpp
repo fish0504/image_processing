@@ -44,13 +44,12 @@ int estimate_Angular(int now_angular_index,cv::Mat now_image_left,cv::Mat now_im
         
         //input the pictures taken now
         
-        // cv::Mat imgl;
-        // imgl=cv::imread(ostr.str(),0);
         cv::Mat imgl;
         if(l==0)imgl=now_image_left;
         else{
-            imgl=now_image_right;
             continue;
+            imgl=now_image_right;
+            
         }
 #if 0 
         cv::imshow("oringinl_left",imgl);

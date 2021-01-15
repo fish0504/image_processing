@@ -37,7 +37,7 @@ cv::Mat right_img;
 
 // whether or not to show captured frames
 bool enableDisplay = false;
-static const uint32_t c_countOfImagesToGrab = 10000;
+static const uint32_t c_countOfImagesToGrab = 50000;
 // exposure time default
 float exposure_time = 2000.0; //microsecond
 

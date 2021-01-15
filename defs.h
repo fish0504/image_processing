@@ -76,11 +76,12 @@ public:
             //cv::cvtColor(srcMat,srcMat, cv::COLOR_BayerBG2RGB,0);
             //outputMat=inputMat;
         }
+        
+        //printf("Got_mat!\n");
+        outputMat.download(aMat, stream);
         if(aMat.empty()){
             printf("getting_mat_failed!\n");
         }
-        //printf("Got_mat!\n");
-        outputMat.download(aMat, stream);
         //cv::imshow("get_mat",aMat);
         return;
     }

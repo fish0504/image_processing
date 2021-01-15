@@ -82,7 +82,7 @@ bool convertToPython(cv::Mat depth){
     //結果の受け取り
     //stl_input_iteratorを使ってタプル全要素を受け取る
     printf("now3\n");
-    func();
+    func(A);
     //auto ret=func(A);
 #if CONFIRM_IMAGES
         boost::python::stl_input_iterator<np::ndarray> begin(pyresult_numpy), end;
