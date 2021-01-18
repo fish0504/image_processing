@@ -92,3 +92,10 @@ UDPとdPSACEについて調べまくって相談した
 
 ## 0118
 
+### やったこと
+* dex-netへの入力と出力を関数で引数として渡そうとしたが、boost_pythonの問題でうまくいかなかったので、yamlファイルを通して出力をc++側で受け取るようにした
+##### メモ
+* yamlファイルはcv::Filestorageで開く場合はヘッダー部分に"%YAML"がないとエラーが出る、書き込みをcv.Filestorageでおこなうと自動で"％YAML”のヘッダーがつく  
+* opencvのyaml　tutorial  https://docs.opencv.org/master/dd/d74/tutorial_file_input_output_with_xml_yml.html
+### 次やること
+* UDP通信、ステレオマッチングのキャリブレーションと実験環境のコンフィギュレーションをして、カメラ入力->ステレオマッチングの画像に対してdex-netの出力を得る
