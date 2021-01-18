@@ -94,7 +94,6 @@ int estimate_Angular(int now_angular_index,cv::Mat now_image_left,cv::Mat now_im
                     best=src;
             }
 #endif
-
            // printf("similarity with %lf : %lf\n",angles[index],now);
         }
        /// clock_t end=clock();
@@ -122,16 +121,6 @@ int estimate_Angular(int now_angular_index,cv::Mat now_image_left,cv::Mat now_im
         oss<<"./bina_angles/bin_ang"<<angles[i]<<".png";
         cv::imwrite(oss.str(),imgl);
 #endif
-        //printf("continue ? press[y/n]");
-        //cv::imshow("best_matched",best);
-        // int key=cv::waitKey(-1);
-        
-        // if(key=='y')continue;
-        // if(key=='n')return 0;
         }
-       
-   // }
-    
-    
     return ret;
 }

@@ -67,7 +67,9 @@ void Display()
         //     now_true_angle-=360;
         //     //rotation_index=(int)now_true_angle/((360/AngleDivision));
         // }
-        cv::waitKey(1);
+
+        int Key=cv::waitKey(1);
+        if(Key=='q')break;
         
         }
        

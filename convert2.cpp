@@ -23,7 +23,8 @@ std::string type2str(int type) {
 } 
 void init_converter(){
 
-   
+    //Python、numpyモジュールの初期化
+    Py_Initialize();
     //Pythonスクリプトの読み込み
     //std::ifstream ifs("mat_numpy.py");
     std::ifstream ifs(pyfile);
@@ -34,18 +35,14 @@ void init_converter(){
                         std::istreambuf_iterator<char>());
 
 }
-
-bool convertToPython(cv::Mat depth){
-    if(depth.empty()){
-        printf("image empty()! failed!\n");
-        return false;
-    }
-     //Python、numpyモジュールの初期化
-    Py_Initialize();
-    np::initialize();
-    //名前空間の確保
-    auto main_ns = boost::python::import("__main__").attr("__dict__");
+int main (){
+    // if(depth.empty()){
+    //     printf("image empty()! failed!\n");
+    //     return false;
+    // }
+    init_converter();
     
+    int cnt=0;
     printf("now2\n");
     //cv::Mat depth;
     //depth=cv::imread("../disp_result.png",0);
@@ -54,36 +51,42 @@ bool convertToPython(cv::Mat depth){
     //boost::python::tuple shapeA = boost::python::make_tuple(MAX_X, MAX_X);
 
     //comment outed
-    int HEIGHT=depth.rows;
-    int WIDTH=depth.cols;
-    boost::python::tuple shapeA = boost::python::make_tuple(HEIGHT,WIDTH);
+    // int HEIGHT=depth.rows;
+    // int WIDTH=depth.cols;
+    // boost::python::tuple shapeA = boost::python::make_tuple(HEIGHT,WIDTH);
 
-    np::ndarray A = np::zeros(shapeA, np::dtype::get_builtin<unsigned char>());
-    int width = depth.cols;
-    int height = depth.rows;
-    int channels = depth.channels();
-    for(int i=0; i != HEIGHT; i++) {
-        int step=i*WIDTH;
-        for(int j=0; j != WIDTH; j++) {
-            int elm=j*depth.elemSize();
-            A[i][j] = depth.data[step+elm];
-            //A[i][j] =i+j;
-        }
-    }
+    // np::ndarray A = np::zeros(shapeA, np::dtype::get_builtin<unsigned char>());
+    // int width = depth.cols;
+    // int height = depth.rows;
+    // int channels = depth.channels();
+    // for(int i=0; i != HEIGHT; i++) {
+    //     int step=i*WIDTH;
+    //     for(int j=0; j != WIDTH; j++) {
+    //         int elm=j*depth.elemSize();
+    //         A[i][j] = depth.data[step+elm];
+    //         //A[i][j] =i+j;
+    //     }
+    // }
     
-    //mat_numpy.mulの実行
-    boost::python::exec(script_dex.c_str(),main_ns);
-    //auto func = main_ns["dexNet"];
-    //auto func = main_ns["matConvertToNumpy"];
+    
+        np::initialize();
+        //名前空間の確保
+        auto main_ns = boost::python::import("__main__").attr("__dict__");
+        //mat_numpy.mulの実行
+        boost::python::exec(script_mat.c_str(), main_ns);
+        auto func = main_ns["matConvertToNumpy"];
 
-    //auto pyresult=func(A);
-    //printf("pyresult:%lf\n",pyresult);
+
+   
+        
+    auto pyresult_numpy=func(cnt);
+    
 
     //結果の受け取り
     //stl_input_iteratorを使ってタプル全要素を受け取る
     printf("now3\n");
     
-#if 0 //CONFIRM_IMAGES
+#if 1 //CONFIRM_IMAGES
         boost::python::stl_input_iterator<np::ndarray> begin(pyresult_numpy), end;
         std::list<np::ndarray> pyresult_list(begin, end);
         cv::Mat received(600,800,CV_8UC1);
@@ -92,8 +95,8 @@ bool convertToPython(cv::Mat depth){
         //double *p = reinterpret_cast<double *>((*itr).get_data());
         //ndarrayでは基本的にメモリは連続領域上に保持されるので、
         //各要素には[]演算子を使ってアクセスできる
-        int HEIGHT=600;
-        int WIDTH=800;
+        int HEIGHT=800;
+        int WIDTH=600;
         for(int i=0;i<HEIGHT;i++){
             for(int k=0;k<WIDTH;k++){
                 received.data[i*WIDTH+k]=p[i*WIDTH+k];
@@ -102,21 +105,17 @@ bool convertToPython(cv::Mat depth){
     }
         printf("returened\n");
         
-        //std::string ty = type2str(depth.type()); 
-        //printf("Matrix: %s %dx%d \n", ty.c_str(), depth.cols, depth.rows);  
-        //std::cout<<"depth_type: "<<depth.type()<<std::endl;
-        
         
         cv::imshow("returned_disp",received);
         cv::waitKey(-1);
         std::ostringstream depth;
-        depth<<"/home/kawahara/dex-net-withoutdocker/gqcnn/data/examples/single_object/primesense/depth_"<<dexcnt<<".npy";
+        depth<<"/home/kawahara/programs/image_input/depth_"<<cnt<<".png";
         cv::imwrite(depth.str(),received);
 #endif
         //boost::python::exec(script_dex.c_str(), main_ns);
         printf("now4\n");
 
         //std::cout << p[0] << ',' << p[1] << ',' << p[2] << ',' << p[MAX_X * MAX_X - 1] << std::endl;
-    
+  
     return true;
 }

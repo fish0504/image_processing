@@ -39,7 +39,7 @@ std::string disparity_filename = "dist.npy";
 std::string point_cloud_filename = "";
 
 
-
+int dexcnt=0; //conunter of dexnet called
 bool no_display=false;
 bool color_display=false;
 const float scale=1.0;

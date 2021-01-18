@@ -17,7 +17,36 @@ static void saveXYZ(const char* filename, const Mat& mat)
     }
     fclose(fp);
 }
+void showDexResult(){
+    printf("filestorage will open\n");
+    cv::FileStorage fs;
+    fs.open(y_file, cv::FileStorage::READ);
+    
+    if(!fs.isOpened())
+        {
+            printf("Failed to open file dexresult\n");
+            return ;
+        }
 
+    double q,lean,depth,point_x,point_y;
+    fs["q_value"]>>q;
+    fs["lean"]>>lean;
+    fs["depth"]>>depth;
+    fs["point_x"]>>point_x;
+    fs["point_y"]>>point_y;
+    // double q= double(fs["q_value"]);
+    // double lean= double(fs["lean"]);
+    // double depth= double(fs["depth"]);
+    // double point_x= double(fs["point_x"]);
+    // double point_y= double(fs["point_y"]);
+    printf("q_value:%lf\n",q);
+    printf("lean:%lf\n",lean);
+    printf("depth:%lf\n",depth);
+    printf("point_x:%lf\n",point_x);
+    printf("point_y:%lf\n",point_y);
+
+
+}
 
 bool init_stereomatch()
 {
@@ -80,9 +109,18 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
    
     int color_mode = alg == STEREO_BM ? 0 : -1;
 #if test_convert
+    std::ostringstream depth;
+    depth<<"/home/kawahara/dex-net-withoutdocker/gqcnn/data/examples/single_object/primesense/depth_"<<dexcnt<<".npy";
+    //std::cout<<depth.str()<<std::endl;
     cv::Mat sample;
-    sample=imread("disp.png",0);
-    convertToPython(sample);
+    sample=imread(depth.str(),0);
+    std::ostringstream segmask;
+    segmask<<"/home/kawahara/dex-net-withoutdocker/gqcnn/data/examples/single_object/primesense/segmask_"<<dexcnt<<".png";
+    cv::Mat segMat=imread(segmask.str(),0);
+    //imwrite("/home/kawahara/programs/image_input/segmask0.png",segMat);
+    convertToPython(segMat);
+    dexcnt++;
+    showDexResult();
     return sample;
 #endif
     //Mat img1 = imread(img1_filename, color_mode);
@@ -200,7 +238,7 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
     {
         
         imshow(disp_name, color_display ? disp8_3c : disp8);
-        convertToPython(disp8);
+        //convertToPython(disp8);
         //imwrite("./disp_results/"+save_name+".png",disp8);
         //printf("depth:\nwidth %d height %d",disp8.cols,disp8.rows);
         //printf("press ESC key or CTRL+C to close...");
