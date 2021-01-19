@@ -23,8 +23,8 @@ int main(){
     {
         obj_points.push_back(object);
     }
-    bool success_right=calibration("./calib_img_mini/right/right",intrinsic_filename_right,0);
-    bool success_left=calibration("./calib_img_mini/left/left",intrinsic_filename_left,1);
+    bool success_right=calibration("/home/kawahara/programs/resources/calibration/left/left",intrinsic_filename_right,0);
+    bool success_left=calibration("/home/kawahara/programs/resources/calibration/right/right",intrinsic_filename_left,1);
 
     if(success_left&&success_right){
         printf("calibration completed!\n");
@@ -52,6 +52,7 @@ bool calibration(string filepath,string intrinsic_filename,bool left)
     // (1)キャリブレーション画像の読み込み
     for (i = 0; i < IMAGE_NUM; i++)
     {
+        
         ostringstream ostr;
         ostr << filepath << i << ".png";
         cv::Mat src = cv::imread(ostr.str());

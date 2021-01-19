@@ -33,12 +33,12 @@ INCLUDE =   -I/usr/local/include/opencv4 \
 
 # 実行ファイル名
 #TARGETS = main
-TARGETS = getDepth
+TARGETS = prepare_calibration
 #clean:;         rm -f *.o *~ $(PROGRAM)
 #clean:
 	#rm $(TARGETS)
 # compile
 #main: main_camera_input.cpp
-getDpeth: main_camera_input.cpp
-	$(CC) main_camera_input.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
+prepare_calibration: prepare_calibration.cpp
+	$(CC) prepare_calibration.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
 # make clean

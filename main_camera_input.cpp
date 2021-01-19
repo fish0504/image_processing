@@ -53,7 +53,7 @@ void Display()
 
             if (frame[i].cols > 0 && frame[i].rows > 0){
                 //show the image
-                cv::rotate(frame[i],frame[i],ROTATE_90_COUNTERCLOCKWISE);
+                //cv::rotate(frame[i],frame[i],ROTATE_90_COUNTERCLOCKWISE);
                
                 cv::imshow(window[i], frame[i]);
                 cv::waitKey(1);
@@ -76,18 +76,22 @@ void Display()
         
        
         
-        //left,right
-        rotation_index=estimate_Angular(rotation_index,frame[1],frame[0]);
        
-        if(cnt%300==0){
-            cv::Mat tmp=getDepthImage(frame[1],frame[0]);
+       
+       
+        if(cnt%300){
+             //left,right
+            cv::Mat tmp=getDepthImage(frame[0],frame[1]);
             //std::thread DEX(getDepthImage,frame[1],frame[0]);
             //DEX.detach();
         }
         else if(cnt%50==0){
             printf("now_estimated_angle %lf\n",angles[rotation_index]);
         }
-         
+        cv::rotate(frame[0],frame[0],ROTATE_90_COUNTERCLOCKWISE);
+        cv::rotate(frame[1],frame[1],ROTATE_90_COUNTERCLOCKWISE);
+
+        rotation_index=estimate_Angular(rotation_index,frame[1],frame[0]);
 
     }
     printf("display end!\n");

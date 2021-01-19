@@ -61,7 +61,7 @@ sgbm = StereoSGBM::create(0,16,3);
         FileStorage fs(intrinsic_filename_left, FileStorage::READ);
         if(!fs.isOpened())
         {
-            printf("Failed to open file %s\n", intrinsic_filename.c_str());
+            printf("Failed to open file %s\n", intrinsic_filename_left.c_str());
             return -1;
         }
 
@@ -104,7 +104,7 @@ sgbm = StereoSGBM::create(0,16,3);
     }
     return true;
 }
-
+ //left,right
 cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
    
     int color_mode = alg == STEREO_BM ? 0 : -1;
@@ -135,7 +135,29 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
         printf("Command-line parameter error: could not load the second input image file\n");
         //return -1;
     }
-    cv::Rect roi(cv::Point2i(w/2-roi_width/2,h/2-roi_height/2),cv::Size(roi_width,roi_height));
+    //cv::Rect roi(cv::Point2i(w/2-roi_width/2,h/2-roi_height/2),cv::Size(roi_width,roi_height));
+    //cv::Rect roi(cv::Point2i(w/2-roi_width/2-100,h/2-roi_height/2+150),cv::Size(roi_width,roi_height));
+
+
+    //experimental
+    //cv::Rect roi(0,0,img1.cols,img1.rows);
+    //cv::Rect roi(200,100,300,400);
+    cv::Rect roi(0,0,800,600);
+    //cv::Rect roi_two(200,100,300,400);
+    cv::Rect roi_two(0,0,800,600);
+    //GaussianBlur(img1,img1, Size(25, 25), 10, 10);
+    //GaussianBlur(img2,img2, Size(25, 25), 10, 10);
+
+    //medianBlur(img1,img1,11);
+    //medianBlur(img2,img2,11);
+#if 0
+    cv::Rect roi_show(cv::Point2i(w/2-roi_width/2-100,h/2-roi_height/2+200),cv::Size(roi_width,roi_height-100));
+    cv::rectangle(img1,roi,cv::Scalar(255,255,255),2);
+    cv::imshow("rectangle_1" ,img1);
+     cv::rectangle(img2,roi_two,cv::Scalar(255,255,255),2);
+    cv::imshow("rectangle_2" ,img2);
+    cv::waitKey(1);
+#endif
     //printf("now1\n");
     
     if (scale != 1.f)
@@ -148,7 +170,9 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
         img2 = temp2;
     }
     img1=img1(roi);
-    img2=img2(roi);
+    img2=img2(roi_two);
+    //std::swap(img1,img2);
+
     printf("here!");
     Size img_size = img1.size();
     Rect roi1,roi2;
@@ -205,9 +229,9 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
         sgbm->setMode(StereoSGBM::MODE_SGBM_3WAY);
 
     Mat disp, disp8;
-    //Mat img1p, img2p, dispp;
-    //copyMakeBorder(img1, img1p, 0, 0, numberOfDisparities, 0, IPL_BORDER_REPLICATE);
-    //copyMakeBorder(img2, img2p, 0, 0, numberOfDisparities, 0, IPL_BORDER_REPLICATE);
+    // Mat img1p, img2p, dispp;
+    // copyMakeBorder(img1, img1p, 0, 0, numberOfDisparities, 0, IPL_BORDER_REPLICATE);
+    // copyMakeBorder(img2, img2p, 0, 0, numberOfDisparities, 0, IPL_BORDER_REPLICATE);
     
     int64 t = getTickCount();
     float disparity_multiplier = 1.0f;
@@ -236,19 +260,14 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
     
     if( !no_display )
     {
-        
+        cv::rotate(img1,img1,ROTATE_90_COUNTERCLOCKWISE);
+        imshow("camera_image_1",img1);
+         cv::rotate(img2,img2,ROTATE_90_COUNTERCLOCKWISE);
+        imshow("camera_image_2",img2);
+        cv::rotate(disp8,disp8,ROTATE_90_COUNTERCLOCKWISE);
         imshow(disp_name, color_display ? disp8_3c : disp8);
         //convertToPython(disp8);
-        //imwrite("./disp_results/"+save_name+".png",disp8);
-        //printf("depth:\nwidth %d height %d",disp8.cols,disp8.rows);
-        //printf("press ESC key or CTRL+C to close...");
-        //fflush(stdout);
-        //printf("\n");
-        // while(1)
-        // {
-        //     if(waitKey() == 27) //ESC (prevents closing on actions like taking screenshots)
-        //         break;
-        // }
+        
     }
 
     return disp8;

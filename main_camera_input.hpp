@@ -31,7 +31,7 @@ std::mutex mtx;
 cv::Mat cameraImage1;
 cv::Mat cameraImage2;
 cv::Mat cameraImages[2];
-const string window[2]={"right camera","left camera"};
+const string window[2]={"left camera","right camera"};
 cv::Mat left_img;
 cv::Mat right_img;
 

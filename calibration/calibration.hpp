@@ -22,13 +22,19 @@
 
 using namespace std;
 
-#define IMAGE_NUM  (11)         /* 画像数 */
+#define IMAGE_NUM  (30)         /* 画像数 */
 // #define PAT_ROW    (8)          /* パターンの行数 */
 // #define PAT_COL    (14)         /* パターンの列数 */
 //#define CHESS_SIZE (20.0)       /* パターン1マスの1辺サイズ[mm] */
 
-#define PAT_ROW    (7)          /* パターンの行数 */
-#define PAT_COL    (12)         /* パターンの列数 */
+//not rotated
+//#define PAT_ROW    (7)          /* パターンの行数 */
+//#define PAT_COL    (12)         /* パターンの列数 */
+
+//after rotated
+#define PAT_ROW    (12)          /* パターンの行数 */
+#define PAT_COL    (7)         /* パターンの列数 */
+
 #define CHESS_SIZE (10.0)       /* パターン1マスの1辺サイズ[mm] */
 #define PAT_SIZE   (PAT_ROW*PAT_COL)
 #define ALL_POINTS (IMAGE_NUM*PAT_SIZE)
@@ -43,6 +49,6 @@ cv::Size img_size;
  vector<vector<cv::Point3f>> obj_points;
  vector<vector<cv::Point2f>> img_points_l;
  vector<vector<cv::Point2f>> img_points_r;
-const string intrinsic_filename_left="l2_intrinsic.xml";
-const string intrinsic_filename_right="r2_intrinsic.xml";
-const string extrinsic_filename="extrinsic2.xml";
+const string intrinsic_filename_left="/home/kawahara/programs/image_input/cameraParams/l_intrinsic.xml";
+const string intrinsic_filename_right="/home/kawahara/programs/image_input/cameraParams/r_intrinsic.xml";
+const string extrinsic_filename="/home/kawahara/programs/image_input/cameraParams/extrinsic.xml";

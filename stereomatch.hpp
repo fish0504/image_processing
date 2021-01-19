@@ -19,8 +19,8 @@
 #include"convert.cpp"
 
 #define sad 5
-#define num 32     //disparity
-#define test_convert 1
+#define num 64     //disparity
+#define test_convert 0
 // #define w 800
 // #define h 600
 const int w=800;
@@ -34,9 +34,9 @@ using namespace cv;
 enum { STEREO_BM=0, STEREO_SGBM=1, STEREO_HH=2, STEREO_VAR=3, STEREO_3WAY=4, STEREO_HH4=5 };
 const int alg=STEREO_SGBM; 
 
-std::string intrinsic_filename = "";
-std::string disparity_filename = "dist.npy";
-std::string point_cloud_filename = "";
+// std::string intrinsic_filename = "";
+// std::string disparity_filename = "dist.npy";
+// std::string point_cloud_filename = "";
 
 
 int dexcnt=0; //conunter of dexnet called
@@ -53,7 +53,7 @@ static void saveXYZ(const char* filename, const Mat& mat);
 bool init_stereomatch();
 cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2);
  std::string disp_name;
-const std::string intrinsic_filename_left="./cameraParams/r2_intrinsic.xml";
-const std::string intrinsic_filename_right="./cameraParams/r2_intrinsic.xml";
-const std::string extrinsic_filename="./cameraParams/camera.xml";
+const std::string intrinsic_filename_left="/home/kawahara/programs/image_input/cameraParams/l_intrinsic.xml";
+const std::string intrinsic_filename_right="/home/kawahara/programs/image_input/cameraParams/r_intrinsic.xml";
+const std::string extrinsic_filename="/home/kawahara/programs/image_input/cameraParams/extrinsic.xml";
 using namespace std;
