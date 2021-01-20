@@ -23,8 +23,8 @@ int main(){
     {
         obj_points.push_back(object);
     }
-    bool success_right=calibration("/home/kawahara/programs/resources/calibration/left/left",intrinsic_filename_right,0);
-    bool success_left=calibration("/home/kawahara/programs/resources/calibration/right/right",intrinsic_filename_left,1);
+    bool success_right=calibration("/home/kawahara/programs/resources/calibration/right/right",intrinsic_filename_right,0);
+    bool success_left=calibration("/home/kawahara/programs/resources/calibration/left/left",intrinsic_filename_left,1);
 
     if(success_left&&success_right){
         printf("calibration completed!\n");
@@ -56,7 +56,7 @@ bool calibration(string filepath,string intrinsic_filename,bool left)
         ostringstream ostr;
         ostr << filepath << i << ".png";
         cv::Mat src = cv::imread(ostr.str());
-        
+        //cv::rotate(src,src,cv::ROTATE_90_COUNTERCLOCKWISE);
         if (src.empty())
         {
             cerr << "cannot load image file : " << ostr.str() << endl;

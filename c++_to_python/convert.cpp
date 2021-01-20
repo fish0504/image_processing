@@ -7,8 +7,8 @@
 #include <list>
 #include <opencv2/opencv.hpp>
 #define MAX_X 100 //受け渡したい行列のサイズ。
-#define WIDTH 800
-#define HEIGHT 600
+//#define WIDTH 800
+//#define HEIGHT 600
 namespace np = boost::python::numpy;
 std::string type2str(int type) { 
     std::string r; 
@@ -47,8 +47,14 @@ int main() {
     std::string script((std::istreambuf_iterator<char>(ifs)),
                         std::istreambuf_iterator<char>());
     cv::Mat depth;
-    depth=cv::imread("../disp_result.png",0);
+    depth=cv::imread("/home/kawahara/programs/image_input/disp_results/good_result.png",0);
     cv::imshow("original",depth);
+     cv::imwrite("/home/kawahara/programs/image_input/disp_results/segmask_0.png",depth);
+    int HEIGHT=depth.rows;
+    int WIDTH=depth.cols;
+    
+    
+    cv::waitKey(-1);
     std::cout<<"depth_type: "<<depth.type()<<std::endl;
 
     std::string ty = type2str(depth.type()); 
@@ -57,7 +63,9 @@ int main() {
     //boost::python::tuple shapeA = boost::python::make_tuple(MAX_X, MAX_X);
     boost::python::tuple shapeA = boost::python::make_tuple(HEIGHT,WIDTH);
 
-    np::ndarray A = np::zeros(shapeA, np::dtype::get_builtin<unsigned char>());
+    //np::ndarray A = np::zeros(shapeA, np::dtype::get_builtin<unsigned char>());
+    np::ndarray A = np::zeros(shapeA, np::dtype::get_builtin<double>());
+
     int width = depth.cols;
     int height = depth.rows;
     int channels = depth.channels();
@@ -65,7 +73,7 @@ int main() {
         int step=i*WIDTH;
         for(int j=0; j != WIDTH; j++) {
             int elm=j*depth.elemSize();
-            A[i][j] = depth.data[step+elm];
+            A[i][j] = (double)depth.data[step+elm];
             //A[i][j] =i+j;
         }
     }
@@ -81,10 +89,10 @@ int main() {
     //stl_input_iteratorを使ってタプル全要素を受け取る
     boost::python::stl_input_iterator<np::ndarray> begin(pyresult_numpy), end;
     std::list<np::ndarray> pyresult_list(begin, end);
-    cv::Mat received(600,800,CV_8UC1);
+    cv::Mat received(HEIGHT,WIDTH,CV_64FC1);
     for(auto itr = pyresult_list.begin(); itr != pyresult_list.end(); ++itr) {
-        unsigned char *p = reinterpret_cast<unsigned char *>((*itr).get_data());
-        //double *p = reinterpret_cast<double *>((*itr).get_data());
+        //float *p = reinterpret_cast<float *>((*itr).get_data());
+        double *p = reinterpret_cast<double *>((*itr).get_data());
         //ndarrayでは基本的にメモリは連続領域上に保持されるので、
         //各要素には[]演算子を使ってアクセスできる
         for(int i=0;i<HEIGHT;i++){
@@ -93,7 +101,10 @@ int main() {
             }
         }
         printf("returened\n");
+        
         cv::imshow("returned_disp",received);
+        //cv::threshold(received,received,50,255,0);
+       
         cv::waitKey(-1);
         //std::cout << p[0] << ',' << p[1] << ',' << p[2] << ',' << p[MAX_X * MAX_X - 1] << std::endl;
     }

@@ -41,6 +41,9 @@ static const uint32_t c_countOfImagesToGrab = 50000;
 // exposure time default
 float exposure_time = 2000.0; //microsecond
 
+//float exposure_time = 3000.0; //microsecond
+
+
 // Namespace for using GenApi objects.
 using namespace GenApi;
 

@@ -142,20 +142,28 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
     //experimental
     //cv::Rect roi(0,0,img1.cols,img1.rows);
     //cv::Rect roi(200,100,300,400);
-    cv::Rect roi(0,0,800,600);
+    cv::Rect roi(60,320,480,305);
     //cv::Rect roi_two(200,100,300,400);
-    cv::Rect roi_two(0,0,800,600);
-    //GaussianBlur(img1,img1, Size(25, 25), 10, 10);
-    //GaussianBlur(img2,img2, Size(25, 25), 10, 10);
+    cv::Rect roi_two(60,270,480,305);
+    //GaussianBlur(img1,img1, Size(35,35), 13, 13);
+    //GaussianBlur(img2,img2, Size(35,35), 13,13);
+    
 
-    //medianBlur(img1,img1,11);
-    //medianBlur(img2,img2,11);
-#if 0
-    cv::Rect roi_show(cv::Point2i(w/2-roi_width/2-100,h/2-roi_height/2+200),cv::Size(roi_width,roi_height-100));
-    cv::rectangle(img1,roi,cv::Scalar(255,255,255),2);
-    cv::imshow("rectangle_1" ,img1);
-     cv::rectangle(img2,roi_two,cv::Scalar(255,255,255),2);
-    cv::imshow("rectangle_2" ,img2);
+    GaussianBlur(img1,img1, Size(35,25), 15, 15);
+    GaussianBlur(img2,img2, Size(35,25), 15,15);
+    //medianBlur(img1,img1,5);
+    //medianBlur(img2,img2,5);
+#if 1
+    //cv::Rect roi_show(cv::Point2i(w/2-roi_width/2-100,h/2-roi_height/2+200),cv::Size(roi_width,roi_height-100));
+    cv::Mat tmpl,tmpr;
+    tmpr=img2,tmpl=img1;
+    cv::rectangle(tmpl,roi,cv::Scalar(255,255,255),2);
+    //cv::imshow("rectangle_1" ,img1);
+    cv::rectangle(tmpr,roi_two,cv::Scalar(255,255,255),2);
+    //cv::imshow("rectangle_2" ,img2);
+    cv::Mat showImage;
+    cv::hconcat(tmpl,tmpr,showImage);
+    cv::imshow("camera",showImage);
     cv::waitKey(1);
 #endif
     //printf("now1\n");
@@ -259,14 +267,24 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
     Mat disp8_3c;
     
     if( !no_display )
-    {
-        cv::rotate(img1,img1,ROTATE_90_COUNTERCLOCKWISE);
-        imshow("camera_image_1",img1);
-         cv::rotate(img2,img2,ROTATE_90_COUNTERCLOCKWISE);
-        imshow("camera_image_2",img2);
-        cv::rotate(disp8,disp8,ROTATE_90_COUNTERCLOCKWISE);
-        imshow(disp_name, color_display ? disp8_3c : disp8);
-        //convertToPython(disp8);
+    {   cv:Mat tmp1,tmp2,tmp3,show_image;
+        cv::hconcat(img1, img2, tmp1);
+        cv::hconcat(tmp1,disp8,showImage);
+        imshow("remapped Images"+disp_name,showImage);
+        int key=waitKey(-1);
+        printf("do you preserve result? [y/n]\n");
+        if(key=='y'){
+            cv::imwrite("./disp_results/good_result.png",disp8);
+        }
+        //cv::hconcat(disp8,tmp3, tmp2);
+       // cv::vconcat(tmp1, tmp2, show_image);
+        //cv::rotate(img1,img1,ROTATE_90_COUNTERCLOCKWISE);
+        //imshow("camera_image_1",img1);
+        //cv::rotate(img2,img2,ROTATE_90_COUNTERCLOCKWISE);
+        //imshow("camera_image_2",img2);
+        
+        //imshow(disp_name, disp8);
+        //imshow("stereo match",show_image);
         
     }
 

@@ -6,8 +6,8 @@ def mul(n):
     print("received matrix ")# + str(n))
     #print("end from python")
     #mat_array=cv.fromarray(n)
-    cv.imshow("depth",n)
-    np.save('depth',n)
+    cv.imshow("depth_0",n)
+    np.save('/home/kawahara/programs/image_input/disp_results/depth_0',n)
     # ndarrayのタプルを返す
     #return (n,n)
-    return
+    return (n,n)
