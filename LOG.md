@@ -78,7 +78,7 @@ UDPとdPSACEについて調べまくって相談した
 
 ### やったこと
 * dex-netをboost-pythonを使って関数として呼び出すために、
-  * pyenvをつかってdex-netの依存ライブラリをインストール  (pyenvはpy3.6/Pipfileで　$pipenv shell　で起動する)
+  * pyenvをつかってdex-netの依存ライブラリをインストール  (pyenvはpy3.6/Pipfileで　$pipenv shell　で起動する)<br>https://qiita.com/sabaku20XX/items/67eb69f006adbbf9c525#apt-update--apt-upgrade
   * パスの変更  
   をおこなった
 ### 進捗
