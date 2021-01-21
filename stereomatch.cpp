@@ -142,9 +142,9 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
     //experimental
     //cv::Rect roi(0,0,img1.cols,img1.rows);
     //cv::Rect roi(200,100,300,400);
-    cv::Rect roi(60,320,480,305);
+    cv::Rect roi(60,270,480,355);
     //cv::Rect roi_two(200,100,300,400);
-    cv::Rect roi_two(60,270,480,305);
+    cv::Rect roi_two(60,270,480,355);
     //GaussianBlur(img1,img1, Size(35,35), 13, 13);
     //GaussianBlur(img2,img2, Size(35,35), 13,13);
     
@@ -271,11 +271,11 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
         cv::hconcat(img1, img2, tmp1);
         cv::hconcat(tmp1,disp8,showImage);
         imshow("remapped Images"+disp_name,showImage);
-        int key=waitKey(-1);
-        printf("do you preserve result? [y/n]\n");
-        if(key=='y'){
-            cv::imwrite("./disp_results/good_result.png",disp8);
-        }
+        // int key=waitKey(-1);
+        // printf("do you preserve result? [y/n]\n");
+        // if(key=='y'){
+        //     cv::imwrite("./disp_results/good_result.png",disp8);
+        // }
         //cv::hconcat(disp8,tmp3, tmp2);
        // cv::vconcat(tmp1, tmp2, show_image);
         //cv::rotate(img1,img1,ROTATE_90_COUNTERCLOCKWISE);

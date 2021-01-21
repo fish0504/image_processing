@@ -81,7 +81,7 @@ void Display()
         // cv::imshow(window[0], frame[0]);
         // cv::imshow(window[1], frame[1]);
         // cv::waitKey(1);
-        if(cnt%10==0){
+        if(cnt%10){
              //left,right
             cv::Mat tmp=getDepthImage(frame[0],frame[1]);
             //std::thread DEX(getDepthImage,frame[1],frame[0]);

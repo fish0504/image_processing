@@ -23,7 +23,7 @@ int main(){
     {
         obj_points.push_back(object);
     }
-    bool success_right=calibration("/home/kawahara/programs/resources/calibration/right_rotate/right",intrinsic_filename_right,0);
+    bool success_right=calibration("/home/kawahara/programs/resources/calibration/right_rotated/right",intrinsic_filename_right,0);
     bool success_left=calibration("/home/kawahara/programs/resources/calibration/left_rotate/left",intrinsic_filename_left,1);
 
     if(success_left&&success_right){
@@ -109,11 +109,29 @@ bool calibration(string filepath,string intrinsic_filename,bool left)
         cerr << "Calibration Images are insufficient." << endl;
         return -1;
     }
-
     // (5)内部パラメータ，歪み係数の推定
     cv::Mat cam_mat; // カメラ内部パラメータ行列
     cv::Mat dist_coefs; // 歪み係数
     vector<cv::Mat> rvecs, tvecs; // 各ビューの回転ベクトルと並進ベクトル
+
+    // (6)XMLファイルへの書き出し
+    cv::FileStorage fs1(intrinsic_filename, cv::FileStorage::READ);
+    if(!fs1.isOpened())
+    {
+        cerr << "File can not be opened." << endl;
+        return -1;
+    }
+    if(left){
+    fs1["M1"]>> cam_mat;
+    //fs1["D1"]>> dist_coefs;
+    }
+    else{
+    fs1["M2"]>>cam_mat;
+    //fs1["D2"]>>dist_coefs;
+    
+    }
+    fs1.release();
+    
     cv::calibrateCamera(
         obj_points,
         img_points,
@@ -121,7 +139,7 @@ bool calibration(string filepath,string intrinsic_filename,bool left)
         cam_mat,
         dist_coefs,
         rvecs,
-        tvecs
+        tvecs,cv::CALIB_USE_INTRINSIC_GUESS
     );
     if(left){
         img_points_l=img_points;
@@ -137,23 +155,7 @@ bool calibration(string filepath,string intrinsic_filename,bool left)
         kr=cam_mat;
         dr=dist_coefs;
     }
-    // (6)XMLファイルへの書き出し
-    cv::FileStorage fs1(intrinsic_filename, cv::FileStorage::WRITE);
-    if(!fs1.isOpened())
-    {
-        cerr << "File can not be opened." << endl;
-        return -1;
-    }
-    if(left){
-    fs1 << "M1" << cam_mat;
-    fs1 << "D1" << dist_coefs;
-    }
-    else{
-    fs1 << "M2" << cam_mat;
-    fs1 << "D2" << dist_coefs;
     
-    }
-    fs1.release();
 
     return true;
 }
@@ -166,7 +168,7 @@ stereoCalibrate(
     obj_points,
     img_points_l,img_points_r,
     kl,dl,kr,dr,
-    img_size,r,t,e,f,cv::TermCriteria()
+    img_size,r,t,e,f,cv::CALIB_FIX_INTRINSIC
 );
 printf("Done Calibration\n");
 

@@ -33,12 +33,12 @@ INCLUDE =   -I/usr/local/include/opencv4 \
 
 # 実行ファイル名
 #TARGETS = main
-TARGETS = calibration
+TARGETS = semiauto_calibration
 #clean:;         rm -f *.o *~ $(PROGRAM)
 #clean:
 	#rm $(TARGETS)
 # compile
 #main: main_camera_input.cpp
-calibration: calibration.cpp
-	$(CC) calibration.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
+semiauto_calibration: semiauto_calibration.cpp
+	$(CC) semiauto_calibration.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
 # make clean

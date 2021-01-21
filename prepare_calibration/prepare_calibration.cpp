@@ -47,8 +47,8 @@ static const uint32_t c_countOfImagesToGrab = 5000;
 // provide more information about this topic.
 // The bandwidth used by a FireWire camera device can be limited by adjusting the packet size.
 static const size_t c_maxCamerasToUse = 2;
-const string saving_path_left="/home/kawahara/programs/resources/calibration/left/left";
-const string saving_path_right="/home/kawahara/programs/resources/calibration/right/right";
+const string saving_path_left="/home/kawahara/programs/resources/calibration/left_rotate/left";
+const string saving_path_right="/home/kawahara/programs/resources/calibration/right_rotate/right";
 constexpr int TIME_TO_SLEEP = 3850;
 
 //This program take the pictures for calibration or rotation estimation
@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
             // Create an OpenCV image out of pylon image
             openCvImage = cv::Mat(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t *)pylonImage.GetBuffer());//me
             std::ostringstream oss;
-            //cv::rotate(openCvImage,openCvImage,cv::ROTATE_90_COUNTERCLOCKWISE);
+            cv::rotate(openCvImage,openCvImage,cv::ROTATE_90_COUNTERCLOCKWISE);
             if (cameraContextValue == 0)
             {
                 oss<<saving_path_left<<picNumber<<".png";
