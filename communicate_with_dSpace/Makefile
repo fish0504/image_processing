@@ -9,6 +9,6 @@ INCLUDE =
 TARGETS = eosens_sample
 
 # compile
-eosens_sample: eosens_sample.cpp
-	$(CC) eosens_sample.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
+upd_send: UdpClient.cpp
+	$(CC) UdpClient.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
 # make clean

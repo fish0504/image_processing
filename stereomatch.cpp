@@ -108,7 +108,7 @@ sgbm = StereoSGBM::create(0,16,3);
 cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
    
     int color_mode = alg == STEREO_BM ? 0 : -1;
-#if test_convert
+#if 1 //test_convert
     std::ostringstream depth;
     depth<<"/home/kawahara/dex-net-withoutdocker/gqcnn/data/examples/single_object/primesense/depth_"<<dexcnt<<".npy";
     //std::cout<<depth.str()<<std::endl;

@@ -78,10 +78,10 @@ void Display()
        
         //cv::rotate(frame[0],frame[0],ROTATE_90_COUNTERCLOCKWISE);
         //cv::rotate(frame[1],frame[1],ROTATE_90_COUNTERCLOCKWISE);
-        // cv::imshow(window[0], frame[0]);
-        // cv::imshow(window[1], frame[1]);
-        // cv::waitKey(1);
-        if(cnt%10){
+        cv::imshow(window[0], frame[0]);
+        cv::imshow(window[1], frame[1]);
+        cv::waitKey(1);
+        if(cnt%100==0){
              //left,right
             cv::Mat tmp=getDepthImage(frame[0],frame[1]);
             //std::thread DEX(getDepthImage,frame[1],frame[0]);
