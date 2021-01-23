@@ -51,7 +51,7 @@ Ptr<StereoBM> bm ;
 Ptr<StereoSGBM> sgbm;
 static void saveXYZ(const char* filename, const Mat& mat);
 bool init_stereomatch();
-cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2);
+void getDepthImage(cv::Mat img1,cv::Mat img2);
  std::string disp_name;
 const std::string intrinsic_filename_left="/home/kawahara/programs/image_input/cameraParams/l_intrinsic.xml";
 const std::string intrinsic_filename_right="/home/kawahara/programs/image_input/cameraParams/r_intrinsic.xml";

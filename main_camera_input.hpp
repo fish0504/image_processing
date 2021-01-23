@@ -59,6 +59,7 @@ std::thread streaming_thread;
 //display thread
 std::thread display_thread;
 
+std::thread dexnet_thread;
 //yolo dnn object
 //object for holding camera devices and configurations
 

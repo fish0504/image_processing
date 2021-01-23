@@ -105,23 +105,16 @@ sgbm = StereoSGBM::create(0,16,3);
     return true;
 }
  //left,right
-cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
+void getDepthImage(cv::Mat img1,cv::Mat img2){
    
     int color_mode = alg == STEREO_BM ? 0 : -1;
 #if 1 //test_convert
-    std::ostringstream depth;
-    depth<<"/home/kawahara/dex-net-withoutdocker/gqcnn/data/examples/single_object/primesense/depth_"<<dexcnt<<".npy";
-    //std::cout<<depth.str()<<std::endl;
-    cv::Mat sample;
-    sample=imread(depth.str(),0);
-    std::ostringstream segmask;
-    segmask<<"/home/kawahara/dex-net-withoutdocker/gqcnn/data/examples/single_object/primesense/segmask_"<<dexcnt<<".png";
-    cv::Mat segMat=imread(segmask.str(),0);
-    //imwrite("/home/kawahara/programs/image_input/segmask0.png",segMat);
-    convertToPython(segMat);
+    printf("call dexnet\n");
+    cv::Mat tmp;
+    convertToPython(tmp);
     dexcnt++;
     showDexResult();
-    return sample;
+    return;
 #endif
     //Mat img1 = imread(img1_filename, color_mode);
     //Mat img2 = imread(img2_filename, color_mode);
@@ -288,5 +281,5 @@ cv::Mat getDepthImage(cv::Mat img1,cv::Mat img2){
         
     }
 
-    return disp8;
+    return;
 }

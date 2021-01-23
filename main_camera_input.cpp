@@ -54,21 +54,12 @@ void Display()
             if (frame[i].cols > 0 && frame[i].rows > 0){
                 //show the image
                 cv::rotate(frame[i],frame[i],ROTATE_90_COUNTERCLOCKWISE);
-               
-                
             }
         end2=clock();
         double time2 = static_cast<double>(end2 - start2) / CLOCKS_PER_SEC;
         start2=clock();
         if(frame[0].empty() || frame[1].empty())continue;
-        // now_true_angle+=true_rotationAngle_perSecond*time2;
-        // if(now_true_angle>=360.0){
-        //     now_true_angle-=360;
-        //     //rotation_index=(int)now_true_angle/((360/AngleDivision));
-        // }
-
-        int Key=cv::waitKey(1);
-        if(Key=='q')break;
+       
         
         }
        
@@ -79,15 +70,22 @@ void Display()
         //cv::rotate(frame[0],frame[0],ROTATE_90_COUNTERCLOCKWISE);
         //cv::rotate(frame[1],frame[1],ROTATE_90_COUNTERCLOCKWISE);
         cv::imshow(window[0], frame[0]);
-        cv::imshow(window[1], frame[1]);
-        cv::waitKey(1);
-        if(cnt%100==0){
+        //cv::imshow(window[1], frame[1]);
+         int Key=cv::waitKey(1);
+        if(Key=='q')break;
+        
+        if(cnt%300==0){
              //left,right
-            cv::Mat tmp=getDepthImage(frame[0],frame[1]);
+            //getDepthImage(frame[0],frame[1]); //call dex-net  in display thread
+            //if(dexnet_thread.joinable())dexnet_thread.join();
+            //if(dexnet_thread.joinable())dexnet_thread.join();
+            dexnet_thread=std::thread(getDepthImage,frame[0],frame[1]);
+            dexnet_thread.detach();
+            //dexnet_thread.detach();
             //std::thread DEX(getDepthImage,frame[1],frame[0]);
-            //DEX.detach();
+            
         }
-        else if(cnt%50==0){
+        if(cnt%50==0){
             printf("now_estimated_angle %lf\n",angles[rotation_index]);
         }
         
@@ -96,6 +94,7 @@ void Display()
 
     }
     printf("display end!\n");
+    if(dexnet_thread.joinable())dexnet_thread.join();
     return ;
 }
 int main(int argc, char* argv[])
@@ -126,14 +125,7 @@ int main(int argc, char* argv[])
         camerasDevices.numberOfCameras= std::min( devices.size(), c_maxCamerasToUse);
         camerasDevices.cameras.Initialize(camerasDevices.numberOfCameras);
 
-        // Create and attach all Pylon Devices.
-        // for ( size_t i = 0; i < cameras.GetSize(); ++i)
-        // {
-        //     cameras[ i ].Attach( tlFactory.CreateDevice( devices[ i ]));
-
-        //     // Print the model name of the camera.
-        //     cout << "Using device " << cameras[ i ].GetDeviceInfo().GetModelName() << endl;
-        // }
+        
                 // Create and attach all Pylon Devices.
         for (size_t i=0; i<camerasDevices.cameras.GetSize(); ++i)
         {
@@ -187,10 +179,7 @@ int main(int argc, char* argv[])
         bool display_started=false;
         clock_t start = clock();
         CGrabResultPtr ptrGrabResult;
-        #if NOT_REALTIME
-        cv::namedWindow("camera1");//CV_WINDOW_NORMAL); 
-        cv::namedWindow("camera2");//,CV_WINDOW_NORMAL); 
-        #endif
+        
         printf("cameras input started!\n");
         for( uint32_t i = 0; i < c_countOfImagesToGrab && camerasDevices.cameras.IsGrabbing(); ++i)
         { 
@@ -202,48 +191,20 @@ int main(int argc, char* argv[])
             camerasDevices.cameraParams[cameraContextValue].imageBuffer.SetBuffer(pImageBuffer, ptrGrabResult->GetBufferSize());
             camerasDevices.frameCount[cameraContextValue]++;
 
-            // When the cameras in the array are created the camera context value
-            // is set to the index of the camera in the array.
-            // The camera context is a user settable value.
-            // This value is attached to each grab result and can be used
-            // to determine the camera that produced the grab result.
-            
-             //const uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
-            //formatConverter.Convert(pylonImage, ptrGrabResult);//me
-            
-            // Create an OpenCV image
-            
-           
-            #if NOT_REALTIME
-            if (cameraContextValue == 0)
-            {
-                //cameraImages[0]=openCvImage;
-                cv::imshow("camera1", openCvImage);
-                //cv::imwrite("right_img.png", openCvImage);
-            }
-            else if (cameraContextValue == 1)
-            {
-                //cameraImages[1]=openCvImage;
-                cv::imshow("camera2", openCvImage);
-                //cv::imwrite("right_img.png", openCvImage);
-
-            }
-            cv::waitKey(1);
-            #endif
-            //cameraImages[cameraContextValue]=openCvImage;
             #if realtime_display
             if(!display_started && i>=500){
-            std::thread display(Display);
-            display.detach();
+            display_thread= std::thread(Display);
+
+            //display_thread.detach();
             display_started=true;
             }
             #endif
             //cv::waitKey(1);
-            if(i%500==0){
+            if(i%1000==0){
                 clock_t end = clock();
                 const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
-                printf("time %lf[ms]\n",time/500);
-                printf("fps %lf[fps]\n",((1000.0)/ time)*500);
+                printf("time %lf[ms]\n",time/1000);
+                printf("fps %lf[fps]\n",((1000.0)/ time)*1000);
                 start = clock();
             }
 
@@ -272,6 +233,9 @@ int main(int argc, char* argv[])
             
             
         }
+        //NotifyThreadsToExit();
+        if (display_thread.joinable())
+        display_thread.join();
     }
     catch (const GenericException &e)
     {

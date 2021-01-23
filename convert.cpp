@@ -36,46 +36,41 @@ void init_converter(){
 }
 
 bool convertToPython(cv::Mat depth){
-    if(depth.empty()){
-        printf("image empty()! failed!\n");
-        return false;
-    }
+    //assert(!depth.empty());
+    printf("now_convert1\n");
      //Python、numpyモジュールの初期化
     Py_Initialize();
     np::initialize();
     //名前空間の確保
     auto main_ns = boost::python::import("__main__").attr("__dict__");
     
-    printf("now2\n");
-    //cv::Mat depth;
-    //depth=cv::imread("../disp_result.png",0);
-   
-    //100x100行列の準備
-    //boost::python::tuple shapeA = boost::python::make_tuple(MAX_X, MAX_X);
+    printf("now_convert2\n");
+    // //for the convertion cv::Mat depth to depth.npy
+    // int HEIGHT=depth.rows;
+    // int WIDTH=depth.cols;
+    // //100x100行列の準備
+    // boost::python::tuple shapeA = boost::python::make_tuple(HEIGHT,WIDTH);
 
-    //comment outed
-    int HEIGHT=depth.rows;
-    int WIDTH=depth.cols;
-    boost::python::tuple shapeA = boost::python::make_tuple(HEIGHT,WIDTH);
-
-    np::ndarray A = np::zeros(shapeA, np::dtype::get_builtin<unsigned char>());
-    int width = depth.cols;
-    int height = depth.rows;
-    int channels = depth.channels();
-    for(int i=0; i != HEIGHT; i++) {
-        int step=i*WIDTH;
-        for(int j=0; j != WIDTH; j++) {
-            int elm=j*depth.elemSize();
-            A[i][j] = depth.data[step+elm];
-            //A[i][j] =i+j;
-        }
-    }
+    // np::ndarray A = np::zeros(shapeA, np::dtype::get_builtin<unsigned char>());
+    // int width = depth.cols;
+    // int height = depth.rows;
+    // int channels = depth.channels();
+    // for(int i=0; i != HEIGHT; i++) {
+    //     int step=i*WIDTH;
+    //     for(int j=0; j != WIDTH; j++) {
+    //         int elm=j*depth.elemSize();
+    //         A[i][j] = depth.data[step+elm];
+    //     }
+    // }
     
     //mat_numpy.mulの実行
     boost::python::exec(script_dex.c_str(),main_ns);
-    //auto func = main_ns["dexNet"];
+    printf("now_convert2.5\n");
+    auto func = main_ns["dexnet"];
+    printf("now_convert2.8\n");
+    func();
     //auto func = main_ns["matConvertToNumpy"];
-
+    //
     //auto pyresult=func(A);
     //printf("pyresult:%lf\n",pyresult);
 
@@ -113,10 +108,6 @@ bool convertToPython(cv::Mat depth){
         depth<<"/home/kawahara/dex-net-withoutdocker/gqcnn/data/examples/single_object/primesense/depth_"<<dexcnt<<".npy";
         cv::imwrite(depth.str(),received);
 #endif
-        //boost::python::exec(script_dex.c_str(), main_ns);
-        printf("now4\n");
-
-        //std::cout << p[0] << ',' << p[1] << ',' << p[2] << ',' << p[MAX_X * MAX_X - 1] << std::endl;
-    
+        printf("now4\n");    
     return true;
 }
