@@ -35,16 +35,16 @@ int main(int argc, char * argv[]) try
         Mat image(Size(w, h), CV_8UC3, (void*)depth.get_data(), Mat::AUTO_STEP);
         Mat color_image(Size(wc, hc), CV_8UC3, (void*)color.get_data(), Mat::AUTO_STEP);
         cv::cvtColor(color_image,color_image,cv::COLOR_RGB2BGR);
-        cv::imshow("color",color_image);
+        //cv::imshow("color",color_image);
         cv::Mat mono_disp1,mono_disp2;
         //printf("Mat type:%d\n",image.type());
 
         cv::cvtColor(image,mono_disp1,cv::COLOR_RGB2GRAY);
         cv::Mat segmask;
-        cv::cvtColor(image,segmask,cv::COLOR_RGB2GRAY);
-        cv::threshold(segmask,segmask,120,255,1);
+        
+        
         std::cout<<"width: "<<w<<"height :"<<h<<std::endl;
-        cv::Rect roi(150,150,200,200);
+        cv::Rect roi(w/2-100,h/2-100,200,200);
         cv::rectangle(image,roi,cv::Scalar(255,0,0),2);
         //imwrite("depth_realsense.png",mono_disp1);
 
@@ -60,6 +60,9 @@ int main(int argc, char * argv[]) try
 
         //binalize and 
         cv::threshold(mono_disp1,mono_disp1,150,255,1);
+        cv::cvtColor(color_image,segmask,cv::COLOR_RGB2GRAY);
+        cv::imshow("segmask_gray",segmask);
+        cv::threshold(segmask,segmask,100,255,0);
         cv::imshow("segmask",segmask);
         imshow(window_name, image);
     }
