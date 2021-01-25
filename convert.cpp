@@ -36,6 +36,12 @@ void init_converter(){
 }
 
 bool convertToPython(cv::Mat depth){
+    std::ifstream ifs(pyfile);
+    std::ifstream ifs_mat(matTonumpy_file);
+    script_dex=std::string((std::istreambuf_iterator<char>(ifs)),
+                        std::istreambuf_iterator<char>());
+    script_mat=std::string((std::istreambuf_iterator<char>(ifs_mat)),
+                        std::istreambuf_iterator<char>());
     //assert(!depth.empty());
     printf("now_convert1\n");
      //Python、numpyモジュールの初期化
@@ -45,33 +51,33 @@ bool convertToPython(cv::Mat depth){
     auto main_ns = boost::python::import("__main__").attr("__dict__");
     
     printf("now_convert2\n");
-    // //for the convertion cv::Mat depth to depth.npy
-    // int HEIGHT=depth.rows;
-    // int WIDTH=depth.cols;
-    // //100x100行列の準備
-    // boost::python::tuple shapeA = boost::python::make_tuple(HEIGHT,WIDTH);
+    //for the convertion cv::Mat depth to depth.npy
+    
+    int width = depth.cols;
+    int height = depth.rows;
+    //100x100行列の準備
+    boost::python::tuple shapeA = boost::python::make_tuple(height,width);
 
-    // np::ndarray A = np::zeros(shapeA, np::dtype::get_builtin<unsigned char>());
-    // int width = depth.cols;
-    // int height = depth.rows;
-    // int channels = depth.channels();
-    // for(int i=0; i != HEIGHT; i++) {
-    //     int step=i*WIDTH;
-    //     for(int j=0; j != WIDTH; j++) {
-    //         int elm=j*depth.elemSize();
-    //         A[i][j] = depth.data[step+elm];
-    //     }
-    // }
+    np::ndarray A = np::zeros(shapeA, np::dtype::get_builtin<float>());
+    
+    int channels = depth.channels();
+    for(int i=0; i != height; i++) {
+        int step=i*width;
+        for(int j=0; j != width; j++) {
+            int elm=j*depth.elemSize();
+            A[i][j] = (float)depth.data[step+elm];
+        }
+    }
     
     //mat_numpy.mulの実行
-    boost::python::exec(script_dex.c_str(),main_ns);
+    boost::python::exec(script_mat.c_str(),main_ns);
     printf("now_convert2.5\n");
-    auto func = main_ns["dexnet"];
+   // auto func = main_ns["matConvertToNumpy"];
     printf("now_convert2.8\n");
-    func();
-    //auto func = main_ns["matConvertToNumpy"];
+    //std::cout<<func(A) <<std::endl;
+    auto func = main_ns["matConvertToNumpy"];
     //
-    //auto pyresult=func(A);
+    auto pyresult=func(A);
     //printf("pyresult:%lf\n",pyresult);
 
     //結果の受け取り

@@ -1,0 +1,1 @@
+/usr/bin/g++-7     CMakeFiles/rsid_cpp_example.dir/realsense_init.cpp.o  -o rsid_cpp_example -lrsid -lrsid_signature_example 

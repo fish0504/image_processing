@@ -64,5 +64,6 @@
         "rope": "cpp",
         "shared_mutex": "cpp",
         "regex": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": true
 }

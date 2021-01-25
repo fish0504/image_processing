@@ -14,11 +14,11 @@ LIBS = -lopencv_core \
   	-lpylonutility \
   	-lGenApi_gcc_v3_1_Basler_pylon \
     -lGCBase_gcc_v3_1_Basler_pylon \
+	-lrealsense2 \
 	-lboost_atomic \
 	-lboost_system \
 	-lboost_thread \
 	-lboost_signals \
-	-lrealsense2 \
 	-lboost_numpy3-py36\
 	-lboost_python3-py36\
 	-lpython3.6\
@@ -29,17 +29,18 @@ LIBS = -lopencv_core \
 	#-lpython2.7 -lpython3.5
 INCLUDE =   -I/usr/local/include/opencv4 \
 			-I/opt/pylon/include \
+			-I/usr/include/ \
 			-I/usr/include/python3.6m
 			#-I/usr/include/python3.6m
 
 # 実行ファイル名
 #TARGETS = main
-TARGETS = dexnet_pararell
+TARGETS = realsense_sample_show
 #clean:;         rm -f *.o *~ $(PROGRAM)
 #clean:
 	#rm $(TARGETS)
 # compile
 #main: main_camera_input.cpp
-dexnet_pararell: main_camera_input.cpp
-	$(CC) main_camera_input.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
+realsense_sample_show: realsense_sample_show.cpp
+	$(CC) realsense_sample_show.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
 # make clean

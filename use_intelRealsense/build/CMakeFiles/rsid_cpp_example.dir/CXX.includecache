@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/kawahara/programs/image_input/use_intelRealsense/realsense_init.cpp
+RealSenseID/FaceAuthenticator.h
+/home/kawahara/programs/image_input/use_intelRealsense/RealSenseID/FaceAuthenticator.h
+RealSenseID/Preview.h
+/home/kawahara/programs/image_input/use_intelRealsense/RealSenseID/Preview.h
+RealSenseID/DeviceController.h
+/home/kawahara/programs/image_input/use_intelRealsense/RealSenseID/DeviceController.h
+RealSenseID/SignatureCallback.h
+/home/kawahara/programs/image_input/use_intelRealsense/RealSenseID/SignatureCallback.h
+rsid_signature_example.h
+/home/kawahara/programs/image_input/use_intelRealsense/rsid_signature_example.h
+string
+-
+stdexcept
+-
+iostream
+-
+cstdlib
+-
+
