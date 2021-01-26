@@ -35,6 +35,9 @@ int main(int argc, char * argv[]) try
         Mat image(Size(w, h), CV_8UC3, (void*)depth.get_data(), Mat::AUTO_STEP);
         Mat color_image(Size(wc, hc), CV_8UC3, (void*)color.get_data(), Mat::AUTO_STEP);
         cv::cvtColor(color_image,color_image,cv::COLOR_RGB2BGR);
+
+
+        cv::resize(color_image,color_image,cv::Size(w,h));
         //cv::imshow("color",color_image);
         cv::Mat mono_disp1,mono_disp2;
         //printf("Mat type:%d\n",image.type());
@@ -54,17 +57,31 @@ int main(int argc, char * argv[]) try
         //convertion to float
         //mono_disp1.convertTo(mono_disp1,CV_32FC1);
 
-        cv::Mat ret=mono_disp1(roi);
-        imshow("gray_disparity_rgb",ret);
+        //convert depth image to ndarray
         convertToPython(mono_disp1);
 
-        //binalize and 
+         //binalize and generate sagmask
         cv::threshold(mono_disp1,mono_disp1,150,255,1);
+        cv::imwrite("segmask.png",mono_disp1);
         cv::cvtColor(color_image,segmask,cv::COLOR_RGB2GRAY);
+
+
+        //gray
         cv::imshow("segmask_gray",segmask);
         cv::threshold(segmask,segmask,100,255,0);
+        cv::rectangle(segmask,roi,cv::Scalar(255),2);
+        //binalized
         cv::imshow("segmask",segmask);
         imshow(window_name, image);
+        
+        
+        cv::Mat black(w,h,CV_8UC1,cv::Scalar(0));
+        cv::Mat target=segmask(roi);
+        target.copyTo(black);
+        cv::imshow("black_segmask",black);
+        
+
+       
     }
 
     return EXIT_SUCCESS;

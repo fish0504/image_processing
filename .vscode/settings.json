@@ -63,7 +63,12 @@
         "*.ipp": "cpp",
         "rope": "cpp",
         "shared_mutex": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "list": "cpp",
+        "slist": "cpp",
+        "typeindex": "cpp"
     },
     "cmake.configureOnOpen": true
 }
