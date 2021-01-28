@@ -23,7 +23,7 @@ int main(int argc, char * argv[]) try
         rs2::frameset data = pipe.wait_for_frames(); // Wait for next set of frames from the camera
         rs2::frame depth = data.get_depth_frame().apply_filter(color_map);
         rs2::frame color=data.get_color_frame();
-
+        //rs2::frame depth=data.get_depth_frame();
         
         // Query frame size (width and height)
         const int w = depth.as<rs2::video_frame>().get_width();
@@ -35,52 +35,60 @@ int main(int argc, char * argv[]) try
         Mat image(Size(w, h), CV_8UC3, (void*)depth.get_data(), Mat::AUTO_STEP);
         Mat color_image(Size(wc, hc), CV_8UC3, (void*)color.get_data(), Mat::AUTO_STEP);
         cv::cvtColor(color_image,color_image,cv::COLOR_RGB2BGR);
-
-
         cv::resize(color_image,color_image,cv::Size(w,h));
-        //cv::imshow("color",color_image);
         cv::Mat mono_disp1,mono_disp2;
         //printf("Mat type:%d\n",image.type());
+
 
         cv::cvtColor(image,mono_disp1,cv::COLOR_RGB2GRAY);
         cv::Mat segmask;
         
         
         std::cout<<"width: "<<w<<"height :"<<h<<std::endl;
-        cv::Rect roi(w/2-100,h/2-100,200,200);
+        cv::Rect roi(w/2-100+20,h/2-100+30,100,100);
         cv::rectangle(image,roi,cv::Scalar(255,0,0),2);
         //imwrite("depth_realsense.png",mono_disp1);
 
         cv::cvtColor(image,mono_disp2,cv::COLOR_BGR2GRAY);
-        imshow("gray_disparity_bgr",mono_disp2);
+
+        //gray image
+        cv::Mat mono;
+        cv::cvtColor(image,mono,cv::COLOR_BGR2GRAY);
+       
+        //get binalized image
+        cv::threshold(mono,segmask,100,255,0);
+        
 
         //convertion to float
         //mono_disp1.convertTo(mono_disp1,CV_32FC1);
 
-        //convert depth image to ndarray
-        convertToPython(mono_disp1);
+        //convert depth image to ndarraymake
+        cv::resize(mono,mono,cv::Size(640,480));
+        convertToPython(mono);
 
          //binalize and generate sagmask
         cv::threshold(mono_disp1,mono_disp1,150,255,1);
-        cv::imwrite("segmask.png",mono_disp1);
-        cv::cvtColor(color_image,segmask,cv::COLOR_RGB2GRAY);
-
-
-        //gray
-        cv::imshow("segmask_gray",segmask);
-        cv::threshold(segmask,segmask,100,255,0);
+        
+        // ROI
+        Mat black = Mat(segmask.rows,segmask.cols, CV_8UC1, Scalar(0));
+        Mat img_roi = segmask(roi);   // 元画像のROIを生成
+        // copyto
+        Mat target_roi=black(roi);
+        img_roi.copyTo(target_roi);   // 貼り付ける画像をROIにコピー
+        imshow("Color ROI copy",black);   // こうすると貼り付けできる
+        std::cout<<"segmask width "<<black.cols<<" height :"<<black.rows<<std::endl;
+        cv::resize(black,black,Size(640,480));
+        //display result
         cv::rectangle(segmask,roi,cv::Scalar(255),2);
-        //binalized
-        cv::imshow("segmask",segmask);
-        imshow(window_name, image);
+       cv::Mat src1,src2,show_image;
+       cv::hconcat(image,color_image,src1);
+       cv::hconcat(mono,segmask,src2);
+       //cv::vconcat(src1,src2,show_image);
+       imshow("disp_results",src1);
+       imshow("gray to bin",src2);
         
-        
-        cv::Mat black(w,h,CV_8UC1,cv::Scalar(0));
-        cv::Mat target=segmask(roi);
-        target.copyTo(black);
-        cv::imshow("black_segmask",black);
-        
-
+        //save segmask image
+        cv::imwrite("segmask.png",black);
        
     }
 
