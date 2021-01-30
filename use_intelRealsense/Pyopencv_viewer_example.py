@@ -13,7 +13,7 @@ WIDTH = 640
 HEIGHT = 480
 FPS = 60
 THRESHOLD = 0.80  # これより遠い距離の画素を無視する
-
+#ここでスケールがかわっているので、あとで*THRESHOLDする
 # Configure depth and color streams
 pipeline = rs.pipeline()
 config = rs.config()
@@ -41,10 +41,12 @@ try:
         # 指定距離以上を無視した深度画像
         depth_image = np.asanyarray(depth_frame.get_data())
         depth_filtered_image = (depth_image < max_dist) * depth_image
-        depth_gray_filtered_image = (depth_filtered_image * 255. / max_dist).reshape((HEIGHT, WIDTH)).astype(np.float64)
+        depth_gray_filtered_image = (depth_filtered_image * 255. / max_dist).reshape((HEIGHT, WIDTH)).astype(np.uint8)
+        cv2.imwrite("depth_gray_filtered_image.png",depth_gray_filtered_image)
         cv2.imshow("gray_filtered_depth_uint",depth_gray_filtered_image)
         depth_gray_filtered_image =np.float64(depth_gray_filtered_image)
-        depth_gray_filtered_image_float=depth_gray_filtered_image/255.0
+        #scale をここでもとに戻す
+        depth_gray_filtered_image_float=depth_gray_filtered_image*THRESHOLD/255.0
         cv2.imshow("gray_filtered_depth_float",depth_gray_filtered_image_float)
         
         np.save("./dexInput/clear_depth_images",depth_gray_filtered_image_float)

@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
 
     // Before using any pylon methods, the pylon runtime must be initialized. 
     PylonInitialize();
-   
+    
     Pylon::PylonAutoInitTerm autoInitTerm;
     
     try
