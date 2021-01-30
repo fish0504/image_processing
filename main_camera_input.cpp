@@ -70,16 +70,14 @@ void Display()
         //cv::rotate(frame[0],frame[0],ROTATE_90_COUNTERCLOCKWISE);
         //cv::rotate(frame[1],frame[1],ROTATE_90_COUNTERCLOCKWISE);
         cv::imshow(window[0], frame[0]);
-        //cv::imshow(window[1], frame[1]);
+      
          int Key=cv::waitKey(1);
         if(Key=='q')break;
         
         if(cnt%300==0){
              //left,right
-            //getDepthImage(frame[0],frame[1]); //call dex-net  in display thread
-            //if(dexnet_thread.joinable())dexnet_thread.join();
-            //if(dexnet_thread.joinable())dexnet_thread.join();
-            dexnet_thread=std::thread(getDepthImage,frame[0],frame[1]);
+            
+            dexnet_thread=std::thread();
             dexnet_thread.detach();
             //dexnet_thread.detach();
             //std::thread DEX(getDepthImage,frame[1],frame[0]);

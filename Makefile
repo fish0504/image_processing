@@ -34,12 +34,12 @@ INCLUDE =   -I/usr/local/include/opencv4 \
 
 # 実行ファイル名
 #TARGETS = main
-TARGETS = dexnet_pararell
+TARGETS = use_pyreal
 #clean:;         rm -f *.o *~ $(PROGRAM)
 #clean:
 	#rm $(TARGETS)
 # compile
 #main: main_camera_input.cpp
-dexnet_pararell: main_camera_input.cpp
-	$(CC) main_camera_input.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
+use_pyreal: convert.cpp
+	$(CC) convert.cpp -o $(TARGETS) $(CFLAGS) $(INCLUDE) $(LDFLAGS) $(LIBS)
 # make clean

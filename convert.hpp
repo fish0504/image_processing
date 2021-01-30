@@ -19,7 +19,9 @@ bool convertToPython(cv::Mat depth);  //execute convertion c++ to python
 void init_converter();                //init and prepare
 std::string script_dex;
 std::string script_mat;
+std::string script_pyRealsense;
 const std::string pyfile="/home/kawahara/dex-net-withoutdocker/gqcnn/examples/policy.py";
 const std::string matTonumpy_file="/home/kawahara/programs/image_input/mat_numpy.py";
+const std::string pyRealsense_file="/home/kawahara/programs/image_input/use_intelRealsense/PyRealsense.py";
 std::string y_file = "/home/kawahara/programs/image_input/dex_result/results.yaml";
 

@@ -14,9 +14,9 @@
 #endif
 static CameraDevices camerasDevices;
 
-#include"stereomatch.cpp"
-#include"Angle_estimate_pixel.cpp"
-#define output_angles 0
+//#include"stereomatch.cpp"
+#include"convert.cpp"
+#define output_angles 0 //推定角度をグラフ出力するかどうか
 
 #if output_angles
 #include"matplotlib-cpp-starter/matplotlibcpp.h"
@@ -31,7 +31,7 @@ std::mutex mtx;
 cv::Mat cameraImage1;
 cv::Mat cameraImage2;
 cv::Mat cameraImages[2];
-const string window[2]={"left camera","right camera"};
+const std::string window[2]={"left camera","right camera"};
 cv::Mat left_img;
 cv::Mat right_img;
 

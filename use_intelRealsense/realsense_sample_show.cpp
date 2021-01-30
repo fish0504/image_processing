@@ -4,6 +4,11 @@
 #include <librealsense2/rs.hpp> // Include RealSense Cross Platform API
 #include <opencv2/opencv.hpp>   // Include OpenCV API
 #include "../convert.cpp"
+
+const int WIDTH = 640;
+const int HEIGHT = 480;
+const int FPS = 60;
+const double THRESHOLD = 0.80;  //これより遠い距離の画素を無視する
 int main(int argc, char * argv[]) try
 {
     // Declare depth colorizer for pretty visualization of depth data
@@ -12,8 +17,9 @@ int main(int argc, char * argv[]) try
     // Declare RealSense pipeline, encapsulating the actual device and sensors
     rs2::pipeline pipe;
     // Start streaming with default recommended configuration
-    pipe.start();
-
+    rs2::pipeline_profile profile=pipe.start();
+    double depth_scale=profile.get_device().query_sensors().get_depth_scale();
+    double max_dist=THRESHOLD/
     using namespace cv;
     const auto window_name = "Display Image";
     namedWindow(window_name, WINDOW_AUTOSIZE);
