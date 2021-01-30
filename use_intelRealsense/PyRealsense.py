@@ -30,7 +30,7 @@ def use_realsense_py():
     show_result=False
     try:
         #while True:
-        for i in range(1,200):
+        for i in range(1,50):
         # Wait for a coherent pair of frames: depth and color
             frames = pipeline.wait_for_frames()
             depth_frame = frames.get_depth_frame()

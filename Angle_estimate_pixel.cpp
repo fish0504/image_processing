@@ -34,52 +34,45 @@ void Angle_estimate_init(){
 
 //input (now_angular_index,now_image)
 //output (estimated_angular_index)
-int estimate_Angular(int now_angular_index,cv::Mat now_image_left,cv::Mat now_image_right){
- 
-    
-    int ret=-1;
-    //for(int now_angular_index=0;now_angular_index<AngleDivision;now_angular_index++){
-        for(int l=0;l<2;l++){
-        //ostringstream ostr;
+int estimate_Angular(int now_angular_index,cv::Mat imgl,bool realsense){
         
-        //input the pictures taken now
-        
-        cv::Mat imgl;
-        if(l==0)imgl=now_image_left;
-        else{
-            continue;
-            imgl=now_image_right;
-            
-        }
+        int ret=-1;
 #if 0 
         cv::imshow("oringinl_left",imgl);
 #endif
-        
-
-        
-       
+        if(realsense){
+            cv::cvtColor(imgl,imgl,COLOR_RGB2BGRA);
+        }
         double MAX=-1;
         double MIN=1.0;
         int best_match=-1;
         cv::Mat best;
-        imgl=imgl(rois[l]);
+        int roi_index= realsense ? 1:0;
+        imgl=imgl(rois[roi_index]);
+
 #if BIN
         cv::threshold(imgl,imgl,50,255,cv::THRESH_BINARY);
 #endif
         //clock_t start=clock();
-        for(int k=0;k<10;k++){
-            int index=now_angular_index+search_range[k];
+
+        // Baslerの最初の一回目と　RealSenseのときは全通り試す
+        int end= now_angular_index<0 ?  AngleDivision:10;
+        //printf("compare numbers : %d\n",end);
+        for(int k=0;k<end;k++){
+            int index=now_angular_index+k;//search_range[k];
             if(index<0)index+=AngleDivision;
             else if(index>=AngleDivision)index%=AngleDivision;
 
             std::ostringstream oss_out;
-            if(l==0)oss_out<< filepathLeft<<angles[index]<<".png";
+            if(realsense){
+            oss_out<< filepathRealSense<<angles[index]<<".png";
+            }
             else{
-                oss_out<< filepathRight<<angles[index]<<".png";
+            oss_out<< filepathLeft<<angles[index]<<".png";
             }
             Mat src=imread(oss_out.str(),0);
 #if use_simple_compare
-            double now=caluculate_similarity(imgl,src,rois[l]);
+            double now=caluculate_similarity(imgl,src,rois[0]);
             if(MAX<now){
                 MAX=now;
                 best_match=index;
@@ -94,33 +87,13 @@ int estimate_Angular(int now_angular_index,cv::Mat now_image_left,cv::Mat now_im
                     best=src;
             }
 #endif
-           // printf("similarity with %lf : %lf\n",angles[index],now);
         }
-       /// clock_t end=clock();
-        
-        // if(l==0)printf("camera left img_angle %lf  estimated ang %lf\n\n",angles[now_angular_index],angles[best_match]);
-        // else
-        // {
-        //     printf("camera right img_angle %lf  estimated ang %lf\n\n",angles[now_angular_index],angles[best_match]);
-        // }
-        
-        //printf("%lf :ms\n" ,((end-start)/1000.0));///200);
-        //cv::imshow("best_matched",best);
-
-        
-#if 0
-        //cv::imshow("vinalized_left",imgl);
-        
-        
-        
-        if(key=='d')continue;
-#endif
 
 #if 0
         std::ostringstream oss;
         oss<<"./bina_angles/bin_ang"<<angles[i]<<".png";
         cv::imwrite(oss.str(),imgl);
 #endif
-        }
+      
     return ret;
 }

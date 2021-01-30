@@ -18,24 +18,22 @@
 */
 #include "main_camera_input.hpp"
 
+//ロボット制御の目標値
+
+
+
+
 
 void Display()
-{
-
-    
+{    
     cv::namedWindow(window[0]);//CV_WINDOW_NORMAL); 
-    cv::namedWindow(window[1]);//,CV_WINDOW_NORMAL); 
+    
     // Create an OpenCV image
     //cv::Mat openCvImage;//me
     cv::Mat frame[c_maxCamerasToUse];
     int cnt=0;
     printf("display_start!\n");
-#if use_boost_stereomatch
-    init_stereomatch();
-    init_converter();
-#endif
-    //cv::Rect roi_1(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
-    //cv::Rect roi_2(cv::Point2i(0,(w-roi_width)-300),cv::Size(h,roi_width));
+
     Angle_estimate_init();
     
     clock_t start2 = clock();
@@ -55,40 +53,24 @@ void Display()
                 //show the image
                 cv::rotate(frame[i],frame[i],ROTATE_90_COUNTERCLOCKWISE);
             }
-        end2=clock();
-        double time2 = static_cast<double>(end2 - start2) / CLOCKS_PER_SEC;
-        start2=clock();
-        if(frame[0].empty() || frame[1].empty())continue;
-       
-        
+            end2=clock();
+            double time2 = static_cast<double>(end2 - start2) / CLOCKS_PER_SEC;
+            start2=clock();
+            if(frame[0].empty() || frame[1].empty())continue;        
         }
        
-        
+        //cv::imshow(window[0], frame[0]);
        
-        
-       
-        //cv::rotate(frame[0],frame[0],ROTATE_90_COUNTERCLOCKWISE);
-        //cv::rotate(frame[1],frame[1],ROTATE_90_COUNTERCLOCKWISE);
-        cv::imshow(window[0], frame[0]);
-      
          int Key=cv::waitKey(1);
         if(Key=='q')break;
         
-        if(cnt%300==0){
-             //left,right
-            
-            dexnet_thread=std::thread();
-            dexnet_thread.detach();
-            //dexnet_thread.detach();
-            //std::thread DEX(getDepthImage,frame[1],frame[0]);
-            
-        }
         if(cnt%50==0){
             printf("now_estimated_angle %lf\n",angles[rotation_index]);
         }
         
 
-        rotation_index=estimate_Angular(rotation_index,frame[1],frame[0]);
+        rotation_index=estimate_Angular(rotation_index,frame[0],0);
+        goal_pos[3]=angles[rotation_index];
 
     }
     printf("display end!\n");
@@ -99,7 +81,7 @@ int main(int argc, char* argv[])
 {
     // The exit code of the sample application.
     int exitCode = 0;
-
+    
     // Before using any pylon methods, the pylon runtime must be initialized. 
     PylonInitialize();
     
@@ -179,6 +161,7 @@ int main(int argc, char* argv[])
         CGrabResultPtr ptrGrabResult;
         
         printf("cameras input started!\n");
+        send_thread = std::thread(UDPsend);
         for( uint32_t i = 0; i < c_countOfImagesToGrab && camerasDevices.cameras.IsGrabbing(); ++i)
         { 
             camerasDevices.cameras.RetrieveResult( 5000, ptrGrabResult, TimeoutHandling_ThrowException);
@@ -198,12 +181,17 @@ int main(int argc, char* argv[])
             }
             #endif
             //cv::waitKey(1);
-            if(i%1000==0){
+            if((i+50)%1000==0){
                 clock_t end = clock();
                 const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
                 printf("time %lf[ms]\n",time/1000);
                 printf("fps %lf[fps]\n",((1000.0)/ time)*1000);
                 start = clock();
+                  
+            }
+            if(i==10000){
+                 dexnet_thread=std::thread(realsense);
+                dexnet_thread.detach();   
             }
 
            
@@ -231,6 +219,7 @@ int main(int argc, char* argv[])
             
             
         }
+        send_thread.join();
         //NotifyThreadsToExit();
         if (display_thread.joinable())
         display_thread.join();

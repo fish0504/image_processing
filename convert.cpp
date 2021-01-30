@@ -1,6 +1,7 @@
 #include "convert.hpp"
+#include "udp.hpp"
 #include"Angle_estimate_pixel.cpp"
-
+#include<vector>
 std::string type2str(int type) { 
     std::string r; 
 
@@ -40,7 +41,8 @@ void init_converter(){
 
 
 }
-void showDexResult(){
+// vector<double> ret={q,lean,depth,x,y}
+std::vector<double> showDexResult(){
     printf("filestorage will open\n");
     cv::FileStorage fs;
     fs.open(y_file, cv::FileStorage::READ);
@@ -48,15 +50,18 @@ void showDexResult(){
     if(!fs.isOpened())
         {
             printf("Failed to open file dexresult\n");
-            return ;
+            
         }
 
     double q,lean,depth,point_x,point_y;
-    fs["q_value"]>>q;
-    fs["lean"]>>lean;
-    fs["depth"]>>depth;
-    fs["point_x"]>>point_x;
-    fs["point_y"]>>point_y;
+    std::vector<double>ret(5);
+    
+    
+    fs["point_x"]>>ret[0];
+    fs["point_y"]>>ret[1];
+    fs["depth"]>>ret[2];
+    fs["lean"]>>ret[3];
+    fs["q_value"]>>ret[4];
     // double q= double(fs["q_value"]);
     // double lean= double(fs["lean"]);
     // double depth= double(fs["depth"]);
@@ -68,13 +73,13 @@ void showDexResult(){
     printf("point_x:%lf\n",point_x);
     printf("point_y:%lf\n",point_y);
 
-
+    return ret;
 }
 
 
 //bool convertToPython(){
-int main(){
-    init_converter();    
+int realsense(){
+       
     //assert(!depth.empty());
     printf("now_convert1\n");
      //Python、numpyモジュールの初期化
@@ -146,15 +151,35 @@ int main(){
         //printf("Matrix: %s %dx%d \n", ty.c_str(), depth.cols, depth.rows);  
         //std::cout<<"depth_type: "<<depth.type()<<std::endl;
         
-        
+#if 0 //debug
         cv::imshow("returned_color",received);
         cv::waitKey(-1);
+#endif
         // std::ostringstream depth;
         // depth<<"/home/kawahara/dex-net-withoutdocker/gqcnn/data/examples/single_object/primesense/depth_"<<dexcnt<<".npy";
         // cv::imwrite(depth.str(),received);
 #endif
-    boost::python::exec(script_dex.c_str(),main_ns);
+    //boost::python::exec(script_dex.c_str(),main_ns);
 
-    printf("now4\n");    
+#if 1
+    //DexNetから出力(x,y,depth,lean,q)  を得る　
+    std::vector<double>grasp=showDexResult();
+
+    //姿勢推定
+    Angle_estimate_init();
+    printf("now_angle_realsense : %lf\n",angles[estimate_Angular(-1,received,true)]);
+    
+
+    //Dex-Netの出力(把持位置)と姿勢推定の結果を合わせて
+    //モデル中心からの相対把持位置を計算する
+
+    
+
+
+    //計算した相対把持位置を更新
+    for(int i=0;i<3;i++)goal_pos[i]=grasp[i];
+
+    
+#endif
     return true;
 }

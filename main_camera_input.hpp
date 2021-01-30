@@ -53,19 +53,22 @@ std::atomic<bool> threads_run;
 std::condition_variable threads_exit;
 std::mutex threads_mutex;
 
-//streaming thread captures and displays frames from the cameras
+//並列に実行するスレッドたち
 std::thread streaming_thread;
 
-//display thread
+//高速な方の姿勢推定
 std::thread display_thread;
 
+//1fps程度のDex-Net
 std::thread dexnet_thread;
-//yolo dnn object
-//object for holding camera devices and configurations
 
-//function declarations
+//UDP通信で常に目標座標を送り続けるスレッド
+std::thread send_thread;
+
 
 int rotation_index=0;
 #define realtime_display 1
 #define use_boost_stereomatch 1
 #define NOT_REALTIME 0
+
+using namespace std;
